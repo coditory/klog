@@ -1,0 +1,27 @@
+[versions]
+# Build tools
+java = "21"
+kotlin = "1.9.21"
+coroutines = "1.7.3"
+ktlint = "1.0.1"
+jacoco = "0.8.11"
+# Dependencies
+logback = "1.4.14"
+ktor = "2.3.6"
+# Test dependencies
+junit = "5.10.1"
+
+[libraries]
+# Build logic
+gradle-kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradle-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version = "12.0.2" }
+# Dependencies
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.9" }
+# Test dependencies
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.1" }
+awaitility = { module = "org.awaitility:awaitility", version = "4.2.0" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }

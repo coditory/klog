@@ -1,0 +1,19 @@
+plugins {
+    id("java-library")
+    id("build.test")
+}
+
+val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
+    options.compilerArgs.addAll(listOf("-Werror", "-Xlint", "-Xlint:-serial"))
+}
