@@ -27,7 +27,7 @@ data class BatchLogPublisherConfig(
 
 @ScopedKlogConfig
 class BatchLogPublisherConfigBuilder(
-    private val publisher: BatchLogPublisher
+    private val publisher: BatchLogPublisher,
 ) {
     // batching
     private var batchSize: Int = BatchingLogPublisher.Defaults.batchSize
@@ -88,7 +88,7 @@ data class AsyncLogPublisherConfig(
 
 @ScopedKlogConfig
 class AsyncLogPublisherConfigBuilder(
-    private val publisher: AsyncLogPublisher
+    private val publisher: AsyncLogPublisher,
 ) {
     // buffering
     private var standardLogBufferCapacity: Int = BufferedLogSink.Defaults.standardLogBufferCapacity

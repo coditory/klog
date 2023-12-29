@@ -45,14 +45,20 @@ class LogStreamConfigBuilder {
         return this
     }
 
-    fun asyncPublisher(publisher: AsyncLogPublisher, configure: AsyncLogPublisherConfigBuilder.() -> Unit = {}): LogStreamConfigBuilder {
+    fun asyncPublisher(
+        publisher: AsyncLogPublisher,
+        configure: AsyncLogPublisherConfigBuilder.() -> Unit = {},
+    ): LogStreamConfigBuilder {
         val builder = AsyncLogPublisherConfigBuilder(publisher)
         configure(builder)
         this.publishers.add(builder.build())
         return this
     }
 
-    fun batchPublisher(publisher: BatchLogPublisher, configure: BatchLogPublisherConfigBuilder.() -> Unit = {}): LogStreamConfigBuilder {
+    fun batchPublisher(
+        publisher: BatchLogPublisher,
+        configure: BatchLogPublisherConfigBuilder.() -> Unit = {},
+    ): LogStreamConfigBuilder {
         val builder = BatchLogPublisherConfigBuilder(publisher)
         configure(builder)
         this.publishers.add(builder.build())
