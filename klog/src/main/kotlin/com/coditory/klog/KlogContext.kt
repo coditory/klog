@@ -27,9 +27,9 @@ internal data class KlogContext(
         fun build(config: KlogConfig): KlogContext {
             return KlogContext(
                 streams =
-                config.streams.mapIndexed { idx, stream ->
-                    buildStream(idx, stream, config)
-                },
+                    config.streams.mapIndexed { idx, stream ->
+                        buildStream(idx, stream, config)
+                    },
                 clock = config.clock,
                 listener = config.listener,
                 klogErrLogger = config.klogErrLogger,

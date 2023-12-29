@@ -10,7 +10,6 @@ class UpdatableFixedClock(
     private var fixedTime: Instant = DEFAULT_FIXED_TIME,
     private val zoneId: ZoneId = DEFAULT_ZONE_ID,
 ) : Clock() {
-
     override fun getZone(): ZoneId = zoneId
 
     override fun withZone(zoneId: ZoneId): UpdatableFixedClock = UpdatableFixedClock(fixedTime, zoneId)

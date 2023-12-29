@@ -5,6 +5,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     kotlin("jvm")
+    id("com.adarshr.test-logger")
+    id("org.jetbrains.kotlinx.kover")
 }
 
 val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)

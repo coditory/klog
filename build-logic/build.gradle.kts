@@ -9,7 +9,11 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.gradle.kotlin.plugin)
+    implementation(libs.gradle.kotlin)
     implementation(libs.gradle.ktlint)
+    implementation(libs.gradle.dokka)
+    implementation(libs.gradle.kover)
+    implementation(libs.gradle.testLogger)
+
     compileOnly(files(libs::class.java.protectionDomain.codeSource.location))
 }
