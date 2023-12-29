@@ -10,6 +10,7 @@ logback = "1.4.14"
 ktor = "2.3.6"
 # Test dependencies
 junit = "5.10.1"
+kotest = "5.8.0"
 
 [libraries]
 # Build logic
@@ -20,8 +21,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.9" }
 # Test dependencies
-junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
-junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
-jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.1" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.2.0" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }

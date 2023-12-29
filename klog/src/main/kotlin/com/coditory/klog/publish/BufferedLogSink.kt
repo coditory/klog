@@ -16,7 +16,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 @OptIn(DelicateCoroutinesApi::class)
-internal class BufferedLogPublisher(
+internal class BufferedLogSink(
     private val publisher: AsyncLogPublisher,
     private val standardLogBufferCapacity: Int = Defaults.standardLogBufferCapacity,
     private val prioritizedLogBufferCapacity: Int = Defaults.prioritizedLogBufferCapacity,
@@ -29,7 +29,7 @@ internal class BufferedLogPublisher(
     private val stopMutex = Mutex()
 
     private val job =
-        GlobalScope.launch(CoroutineName(BufferedLogPublisher::class.java.simpleName)) {
+        GlobalScope.launch(CoroutineName(BufferedLogSink::class.java.simpleName)) {
             while (isActive) {
                 select {
                     prioritizedLogsChannel.onReceiveCatching { result -> result.getOrNull()?.let { emit(it) } }

@@ -1,67 +1,29 @@
 package com.coditory.klog.publish
 
 import com.coditory.klog.LogEvent
-import com.coditory.klog.LogListener
-import com.coditory.klog.LogPublisherDescriptor
-import com.coditory.klog.config.KlogErrLogger
 
 interface LogPublisher : FlushablePublisher, BlockingPublisher {
     fun publish(event: LogEvent)
-
-    companion object {
-        internal fun withListener(
-            publisher: LogPublisher,
-            descriptor: LogPublisherDescriptor,
-            listener: LogListener,
-            klogErrLogger: KlogErrLogger,
-        ) = SyncLogPublisherWithListener(publisher, descriptor, listener, klogErrLogger)
-    }
 }
 
-internal class SyncLogPublisherWithListener(
-    private val publisher: LogPublisher,
-    private val descriptor: LogPublisherDescriptor,
-    private val listener: LogListener,
-    private val klogErrLogger: KlogErrLogger,
-) : LogPublisher {
-    override suspend fun flush() {
-        publisher.flush()
-    }
+interface AsyncLogPublisher : FlushablePublisher, BlockingPublisher {
+    suspend fun publishAsync(event: LogEvent)
+}
 
-    override suspend fun stopAndFlush() {
-        publisher.stopAndFlush()
-    }
+interface BatchLogPublisher : FlushablePublisher, BlockingPublisher {
+    suspend fun publishBatchAsync(events: List<LogEvent>)
+}
 
-    override fun publishBlocking(event: LogEvent) {
-        listener.onReceived(descriptor, event)
-        try {
-            publisher.publishBlocking(event)
-            listener.onPublished(descriptor, event)
-        } catch (e: Throwable) {
-            klogErrLogger.log { "${publisher::class.simpleName}: Could not publish log. Cause: " + e.stackTraceToString() }
-            listener.onDropped(descriptor, event, e)
-        }
-    }
+interface FlushablePublisher {
+    suspend fun flush() {}
 
-    override suspend fun publishSuspending(event: LogEvent) {
-        listener.onReceived(descriptor, event)
-        try {
-            publisher.publishSuspending(event)
-            listener.onPublished(descriptor, event)
-        } catch (e: Throwable) {
-            klogErrLogger.log { "${publisher::class.simpleName}: Could not publish log. Cause: " + e.stackTraceToString() }
-            listener.onDropped(descriptor, event, e)
-        }
-    }
+    suspend fun stopAndFlush() {}
+}
 
-    override fun publish(event: LogEvent) {
-        listener.onReceived(descriptor, event)
-        try {
-            publisher.publish(event)
-            listener.onPublished(descriptor, event)
-        } catch (e: Throwable) {
-            klogErrLogger.log { "${publisher::class.simpleName}: Could not publish log. Cause: " + e.stackTraceToString() }
-            listener.onDropped(descriptor, event, e)
-        }
+interface BlockingPublisher {
+    fun publishBlocking(event: LogEvent)
+
+    suspend fun publishSuspending(event: LogEvent) {
+        publishBlocking(event)
     }
 }

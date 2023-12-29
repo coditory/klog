@@ -68,3 +68,10 @@ tasks.withType<Test>().configureEach {
         html.required.set(true)
     }
 }
+
+dependencies {
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.awaitility)
+}

@@ -3,10 +3,15 @@ package com.coditory.klog.config
 import com.coditory.klog.publish.AsyncLogPublisher
 import com.coditory.klog.publish.BatchLogPublisher
 import com.coditory.klog.publish.BatchingLogPublisher
-import com.coditory.klog.publish.BufferedLogPublisher
+import com.coditory.klog.publish.BlockingPublisher
+import com.coditory.klog.publish.BufferedLogSink
 import kotlin.time.Duration
 
 sealed interface LogPublisherConfig
+
+data class BlockingLogPublisherConfig(
+    val publisher: BlockingPublisher,
+) : LogPublisherConfig
 
 data class BatchLogPublisherConfig(
     val publisher: BatchLogPublisher,
@@ -14,31 +19,26 @@ data class BatchLogPublisherConfig(
     val batchSize: Int = BatchingLogPublisher.Defaults.batchSize,
     val maxBatchStaleness: Duration = BatchingLogPublisher.Defaults.maxBatchStaleness,
     // buffering
-    val standardLogBufferCapacity: Int = BufferedLogPublisher.Defaults.standardLogBufferCapacity,
-    val prioritizedLogBufferCapacity: Int = BufferedLogPublisher.Defaults.prioritizedLogBufferCapacity,
+    val standardLogBufferCapacity: Int = BufferedLogSink.Defaults.standardLogBufferCapacity,
+    val prioritizedLogBufferCapacity: Int = BufferedLogSink.Defaults.prioritizedLogBufferCapacity,
     // serializing
     val serialize: Boolean = false,
 ) : LogPublisherConfig
 
 @ScopedKlogConfig
-class BatchLogPublisherConfigBuilder {
-    private var publisher: BatchLogPublisher? = null
-
+class BatchLogPublisherConfigBuilder(
+    private val publisher: BatchLogPublisher
+) {
     // batching
     private var batchSize: Int = BatchingLogPublisher.Defaults.batchSize
     private var maxBatchStaleness: Duration = BatchingLogPublisher.Defaults.maxBatchStaleness
 
     // buffering
-    private var standardLogBufferCapacity: Int = BufferedLogPublisher.Defaults.standardLogBufferCapacity
-    private var prioritizedLogBufferCapacity: Int = BufferedLogPublisher.Defaults.prioritizedLogBufferCapacity
+    private var standardLogBufferCapacity: Int = BufferedLogSink.Defaults.standardLogBufferCapacity
+    private var prioritizedLogBufferCapacity: Int = BufferedLogSink.Defaults.prioritizedLogBufferCapacity
 
     // serializing
     private var serialize: Boolean = false
-
-    fun publisher(publisher: BatchLogPublisher): BatchLogPublisherConfigBuilder {
-        this.publisher = publisher
-        return this
-    }
 
     fun batchSize(batchSize: Int): BatchLogPublisherConfigBuilder {
         this.batchSize = batchSize
@@ -67,7 +67,7 @@ class BatchLogPublisherConfigBuilder {
 
     fun build(): BatchLogPublisherConfig {
         return BatchLogPublisherConfig(
-            publisher = publisher ?: throw NullPointerException("Expected publisher"),
+            publisher = publisher,
             batchSize = batchSize,
             maxBatchStaleness = maxBatchStaleness,
             standardLogBufferCapacity = standardLogBufferCapacity,
@@ -80,27 +80,22 @@ class BatchLogPublisherConfigBuilder {
 data class AsyncLogPublisherConfig(
     val publisher: AsyncLogPublisher,
     // buffering
-    var standardLogBufferCapacity: Int = BufferedLogPublisher.Defaults.standardLogBufferCapacity,
-    var prioritizedLogBufferCapacity: Int = BufferedLogPublisher.Defaults.prioritizedLogBufferCapacity,
+    var standardLogBufferCapacity: Int = BufferedLogSink.Defaults.standardLogBufferCapacity,
+    var prioritizedLogBufferCapacity: Int = BufferedLogSink.Defaults.prioritizedLogBufferCapacity,
     // serializing
     var serialize: Boolean = true,
 ) : LogPublisherConfig
 
 @ScopedKlogConfig
-class AsyncLogPublisherConfigBuilder {
-    private var publisher: AsyncLogPublisher? = null
-
+class AsyncLogPublisherConfigBuilder(
+    private val publisher: AsyncLogPublisher
+) {
     // buffering
-    private var standardLogBufferCapacity: Int = BufferedLogPublisher.Defaults.standardLogBufferCapacity
-    private var prioritizedLogBufferCapacity: Int = BufferedLogPublisher.Defaults.prioritizedLogBufferCapacity
+    private var standardLogBufferCapacity: Int = BufferedLogSink.Defaults.standardLogBufferCapacity
+    private var prioritizedLogBufferCapacity: Int = BufferedLogSink.Defaults.prioritizedLogBufferCapacity
 
     // serializing
     private var serialize: Boolean = true
-
-    fun publisher(publisher: AsyncLogPublisher): AsyncLogPublisherConfigBuilder {
-        this.publisher = publisher
-        return this
-    }
 
     fun standardLogBufferCapacity(standardLogBufferCapacity: Int): AsyncLogPublisherConfigBuilder {
         this.standardLogBufferCapacity = standardLogBufferCapacity
@@ -119,7 +114,7 @@ class AsyncLogPublisherConfigBuilder {
 
     internal fun build(): AsyncLogPublisherConfig {
         return AsyncLogPublisherConfig(
-            publisher = publisher ?: throw NullPointerException("Expected publisher"),
+            publisher = publisher,
             standardLogBufferCapacity = standardLogBufferCapacity,
             prioritizedLogBufferCapacity = prioritizedLogBufferCapacity,
             serialize = serialize,

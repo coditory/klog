@@ -2,12 +2,14 @@ package com.coditory.klog
 
 import com.coditory.klog.config.AsyncLogPublisherConfig
 import com.coditory.klog.config.BatchLogPublisherConfig
+import com.coditory.klog.config.BlockingLogPublisherConfig
 import com.coditory.klog.config.KlogConfig
 import com.coditory.klog.config.KlogErrLogger
 import com.coditory.klog.config.LogPublisherConfig
 import com.coditory.klog.config.LogStreamConfig
 import com.coditory.klog.publish.BatchingLogPublisher
-import com.coditory.klog.publish.BufferedLogPublisher
+import com.coditory.klog.publish.BlockingLogSink
+import com.coditory.klog.publish.BufferedLogSink
 import com.coditory.klog.publish.LogPublisher
 import com.coditory.klog.publish.LogPublisherListener
 import com.coditory.klog.publish.SerialBatchLogPublisher
@@ -25,9 +27,9 @@ internal data class KlogContext(
         fun build(config: KlogConfig): KlogContext {
             return KlogContext(
                 streams =
-                    config.streams.mapIndexed { idx, stream ->
-                        buildStream(idx, stream, config)
-                    },
+                config.streams.mapIndexed { idx, stream ->
+                    buildStream(idx, stream, config)
+                },
                 clock = config.clock,
                 listener = config.listener,
                 klogErrLogger = config.klogErrLogger,
@@ -67,9 +69,23 @@ internal data class KlogContext(
             klogConfig: KlogConfig,
         ): LogPublisher {
             return when (config) {
+                is BlockingLogPublisherConfig -> buildBlockingLogPublisher(descriptor, config, klogConfig)
                 is AsyncLogPublisherConfig -> buildAsyncLogPublisher(descriptor, config, klogConfig)
                 is BatchLogPublisherConfig -> buildBatchLogPublisher(descriptor, config, klogConfig)
             }
+        }
+
+        private fun buildBlockingLogPublisher(
+            descriptor: LogPublisherDescriptor,
+            config: BlockingLogPublisherConfig,
+            klogConfig: KlogConfig,
+        ): LogPublisher {
+            return BlockingLogSink(
+                publisher = config.publisher,
+                descriptor = descriptor,
+                listener = klogConfig.listener,
+                klogErrLogger = klogConfig.klogErrLogger,
+            )
         }
 
         private fun buildAsyncLogPublisher(
@@ -87,7 +103,7 @@ internal data class KlogContext(
                         klogErrLogger = klogConfig.klogErrLogger,
                     )
                 }
-            return BufferedLogPublisher(
+            return BufferedLogSink(
                 publisher = serialAsyncLogPublisher,
                 standardLogBufferCapacity = config.standardLogBufferCapacity,
                 prioritizedLogBufferCapacity = config.prioritizedLogBufferCapacity,
@@ -119,7 +135,7 @@ internal data class KlogContext(
                     listener = LogPublisherListener.middle(descriptor, klogConfig.listener),
                     klogErrLogger = klogConfig.klogErrLogger,
                 )
-            return BufferedLogPublisher(
+            return BufferedLogSink(
                 publisher = batchingAsyncPublisher,
                 standardLogBufferCapacity = config.standardLogBufferCapacity,
                 prioritizedLogBufferCapacity = config.prioritizedLogBufferCapacity,
