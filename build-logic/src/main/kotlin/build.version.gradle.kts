@@ -1,29 +1,21 @@
 import java.io.IOException
 
+require(project == rootProject) { "build.version is applicable to rootProject only" }
+
+val textVersion = project.version.toString()
+if (textVersion == "unspecified") {
+    version = Semver.fromGitTag().nextPatchSnapshot().toString()
+} else {
+    Semver.parse(textVersion) ?: "Could not parse project version: $textVersion"
+}
+
 allprojects {
-    val textVersion = project.version.toString()
-    if (textVersion == "unspecified") {
-        val useReleaseVersion = project.gradle.startParameter.taskNames
-            .any { it.startsWith("publish") && it.endsWith("PublicationToReleaseRepository") }
-        version = if (useReleaseVersion)
-            Semver.fromGitTag().nextPatchRelease().toString()
-        else
-            Semver.fromGitTag().nextPatchSnapshot().toString()
-    } else {
-        Semver.parse(textVersion)
-            ?: "Could not parse project version: $textVersion"
-    }
+    version = rootProject.version
 }
 
 tasks.register("version") {
     doLast {
         println(project.version)
-    }
-}
-
-tasks.register("nextReleaseVersion") {
-    doLast {
-        println(Semver.fromGitTag().nextPatchRelease().toString())
     }
 }
 
@@ -44,13 +36,6 @@ data class Semver(
         if (suffix == null && other.suffix != null) return -1
         if (suffix != null && other.suffix != null) return suffix.compareTo(other.suffix)
         return 0
-    }
-
-    fun nextPatchRelease(): Semver {
-        return copy(
-            patch = patch + 1,
-            suffix = null
-        )
     }
 
     fun nextPatchSnapshot(): Semver {
@@ -75,26 +60,27 @@ data class Semver(
     companion object {
         private val REGEX = Regex("v?([0-9]+)\\.([0-9]+)\\.([0-9]+)(-.+)?")
 
-        fun parse(text: String): Semver? {
+        fun parse(text: String, strict: Boolean = true): Semver? {
             val groups = REGEX.matchEntire(text)?.groups ?: return null
-            if (groups.size < 3 || groups.size > 4) return null
+            if (groups.size < 4 || groups.size > 5) return null
+            if (strict && groups[0]?.value?.startsWith("v") == true) return null
             return Semver(
-                major = groups[0]?.value?.toIntOrNull() ?: return null,
-                minor = groups[1]?.value?.toIntOrNull() ?: return null,
-                patch = groups[2]?.value?.toIntOrNull() ?: return null,
-                suffix = groups[3]?.value,
+                major = groups[1]?.value?.toIntOrNull() ?: return null,
+                minor = groups[2]?.value?.toIntOrNull() ?: return null,
+                patch = groups[3]?.value?.toIntOrNull() ?: return null,
+                suffix = groups[4]?.value?.trimStart('-'),
             )
         }
 
         fun fromGitTag(): Semver {
             return runCommand("git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1")
                 .split('\n')
-                .mapNotNull { parse(it) }
+                .mapNotNull { parse(it, strict = false) }
                 .minOrNull()
                 ?: Semver(0, 0, 0)
         }
 
-        fun runCommand(
+        private fun runCommand(
             command: String,
             workingDir: File = File("."),
             timeoutAmount: Long = 60,
