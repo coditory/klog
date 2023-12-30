@@ -4,6 +4,8 @@ on:
   pull_request:
   workflow_dispatch:
   push:
+    tags:
+      - 'v*'
     branches-ignore:
       - 'dependabot/**'
       - 'gh-pages'
@@ -74,7 +76,7 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        run: ./gradlew publishJvmPublicationToSnapshotRepository version
+        run: ./gradlew publishToSonatype version
 
       - name: Publish Release
         id: publish-release
@@ -84,7 +86,8 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        run: ./gradlew publishJvmPublicationToReleaseRepository version -Pversion=$GITHUB_REF_NAME
+          OSSRH_STAGING_PROFILE_ID: ${{ secrets.OSSRH_STAGING_PROFILE_ID }}
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository version -Pversion=$GITHUB_REF_NAME
 
       - name: Generate Release Notes
         id: generate-release-notes
