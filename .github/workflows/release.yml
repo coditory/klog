@@ -10,6 +10,7 @@ on:
           - PATCH
           - MINOR
           - MAJOR
+          - RERUN
           - MANUAL
         required: true
         default: PATCH
@@ -54,6 +55,10 @@ jobs:
             NEXT_VERSION="$MAJOR.$(( MINOR + 1 )).0"
           elif [ "$INCREMENT_SECTION" == "MAJOR" ]; then
             NEXT_VERSION="$(( MAJOR + 1 )).0.0"
+          elif [ "$INCREMENT_SECTION" == "RERUN" ]; then
+            NEXT_VERSION="$VERSION"
+            git tag -d "v$NEXT_VERSION" || echo "Local tag does not exist: v$NEXT_VERSION"
+            git push --delete origin "v$NEXT_VERSION" || echo "Remote tag does not exist: v$NEXT_VERSION"
           else
             echo "Unrecognized option: $INCREMENT_SECTION" >&2
             return 1

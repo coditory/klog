@@ -5,7 +5,7 @@ import com.coditory.klog.LogEventField
 import com.coditory.klog.text.TextLogEventSerializer
 import com.coditory.klog.text.shared.SizedAppendable
 
-class JsonLogEventSerializer internal constructor(
+class JsonLogEventSerializer(
     private val whitelist: Set<LogEventField> = LogEventField.all().toSet(),
     private val mergeContextToItems: Boolean = false,
     private val fieldNameMapper: ((LogEventField) -> String)? = null,

@@ -8,7 +8,7 @@ import com.coditory.klog.text.shared.SizedAppendable
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class PlainTextLogEventSerializer internal constructor(
+class PlainTextLogEventSerializer(
     private val fields: List<LogEventField> = LogEventField.all(),
     private val timestampFormatter: PlainTextTimestampFormatter =
         PlainTextTimestampFormatter.from(
@@ -103,18 +103,19 @@ class PlainTextLogEventSerializer internal constructor(
     }
 
     companion object {
-        fun development(ansi: Boolean = ConsoleColors.ANSI_CONSOLE): PlainTextLogEventSerializer {
+        fun development(ansi: Boolean? = null): PlainTextLogEventSerializer {
+            val ansiResolved = ansi ?: ConsoleColors.ANSI_CONSOLE
             val levelFormatter =
-                if (ansi) PlainTextLevelFormatter.leftPaddedAndStyled() else PlainTextLevelFormatter.leftPadded()
-            val timestampStyle = if (ansi) TextStyle.white() else TextStyle.empty()
-            val threadStyle = if (ansi) TextStyle.whiteBold() else TextStyle.empty()
+                if (ansiResolved) PlainTextLevelFormatter.leftPaddedAndStyled() else PlainTextLevelFormatter.leftPadded()
+            val timestampStyle = if (ansiResolved) TextStyle.white() else TextStyle.empty()
+            val threadStyle = if (ansiResolved) TextStyle.whiteBold() else TextStyle.empty()
             return PlainTextLogEventSerializer(
                 fields = LogEventField.all(),
                 timestampFormatter = PlainTextTimestampFormatter.fromLocalTime(timestampStyle),
                 levelFormatter = levelFormatter,
-                loggerNameFormatter = PlainTextStringFormatter.builder().ansi(ansi).compactSections().build(),
+                loggerNameFormatter = PlainTextStringFormatter.builder().ansi(ansiResolved).compactSections().build(),
                 threadFormatter =
-                    PlainTextStringFormatter.builder().ansi(ansi).style(threadStyle).prefix("[")
+                    PlainTextStringFormatter.builder().ansi(ansiResolved).style(threadStyle).prefix("[")
                         .postfix("]").build(),
                 messageFormatter = PlainTextStringFormatter.default(),
             )
