@@ -11,3 +11,7 @@ dependencies {
     kover(project(":klog"))
     kover(project(":klog-slf4j"))
 }
+
+tasks.register("coverage") {
+    dependsOn("koverXmlReport", "koverHtmlReport", "koverLog")
+}
