@@ -6,28 +6,7 @@ plugins {
     signing
 }
 
-group = "com.coditory.klog"
-
 publishing {
-    repositories {
-        maven {
-            name = "snapshot"
-            setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
-            credentials {
-                username = System.getenv("OSSRH_USERNAME")
-                password = System.getenv("OSSRH_PASSWORD")
-            }
-        }
-        maven {
-            name = "release"
-            setUrl("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = System.getenv("OSSRH_USERNAME")
-                password = System.getenv("OSSRH_PASSWORD")
-            }
-        }
-    }
-
     publications.create<MavenPublication>("jvm") {
         artifactId = project.archivesName.get()
         from(components["java"])

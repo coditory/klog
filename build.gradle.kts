@@ -3,9 +3,13 @@ plugins {
     id("build.version")
     alias(libs.plugins.kover)
     alias(libs.plugins.dokka)
+    alias(libs.plugins.nexusPublish)
 }
 
-description = "Klog - Async first JVM logger based on kotlin channels"
+allprojects {
+    group = "com.coditory.klog"
+    description = "Async first Kotlin logger"
+}
 
 dependencies {
     kover(project(":klog"))
@@ -14,4 +18,14 @@ dependencies {
 
 tasks.register("coverage") {
     dependsOn("koverXmlReport", "koverHtmlReport", "koverLog")
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            System.getenv("OSSRH_STAGING_PROFILE_ID")?.let { stagingProfileId = it }
+            System.getenv("OSSRH_USERNAME")?.let { username.set(it) }
+            System.getenv("OSSRH_PASSWORD")?.let { password.set(it) }
+        }
+    }
 }
