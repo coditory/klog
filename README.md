@@ -1,7 +1,7 @@
 # klog - kotlin logger
 
 [![Build](https://github.com/coditory/klog/actions/workflows/build.yml/badge.svg)](https://github.com/coditory/klog/actions/workflows/build.yml)
-[![Coverage](https://codecov.io/gh/coditory/klog/branch/master/graph/badge.svg?token=SPRRPIHQJ4)](https://codecov.io/gh/coditory/klog)
+[![Coverage](https://codecov.io/gh/coditory/klog/graph/badge.svg?token=FlAX0WyFod)](https://codecov.io/gh/coditory/klog)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.coditory.klog/klog/badge.svg)](https://mvnrepository.com/artifact/com.coditory.klog/klog)
 
 **🚧 This library as under heavy development until release of version `1.x.x` 🚧**
