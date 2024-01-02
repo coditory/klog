@@ -3,6 +3,7 @@ package com.coditory.klog.text.json
 import com.coditory.klog.LogEvent
 import com.coditory.klog.LogEventField
 import com.coditory.klog.text.TextLogEventSerializer
+import com.coditory.klog.text.plain.PlainTextMessageFormatter
 import com.coditory.klog.text.shared.SizedAppendable
 
 class JsonLogEventSerializer(
@@ -16,13 +17,15 @@ class JsonLogEventSerializer(
     private val levelFormatter: JsonLevelFormatter = JsonLevelFormatter.default(),
     private val loggerNameFormatter: JsonStringFormatter = JsonStringFormatter.default(escape = false),
     private val threadFormatter: JsonStringFormatter = JsonStringFormatter.default(escape = false),
-    private val messageFormatter: JsonStringFormatter = JsonStringFormatter.default(maxLength = 10 * 1024),
+    private val messageFormatter: JsonMessageFormatter = JsonMessageFormatter.from(PlainTextMessageFormatter.messageAndException()),
     private val contextFormatter: JsonContextFormatter = JsonContextFormatter.default(),
     private val itemsFormatter: JsonMapFormatter = JsonMapFormatter.default(),
+    private val exceptionFormatter: JsonExceptionFormatter? = null,
 ) : TextLogEventSerializer {
     private val fieldPaths =
         LogEventField.all()
             .filter { whitelist.contains(it) }
+            .filter { it != LogEventField.EXCEPTION || exceptionFormatter != null }
             .associateWith { field ->
                 val name = fieldNames[field] ?: fieldNameMapper?.invoke(field) ?: field.name.lowercase()
                 val path =
@@ -112,6 +115,7 @@ class JsonLogEventSerializer(
             LogEventField.CONTEXT -> formatContext(event, appendable)
             LogEventField.MESSAGE -> formatMessage(event, appendable)
             LogEventField.ITEMS -> formatItems(event, appendable)
+            LogEventField.EXCEPTION -> formatException(event, appendable)
         }
     }
 
@@ -154,7 +158,7 @@ class JsonLogEventSerializer(
         event: LogEvent,
         appendable: Appendable,
     ) {
-        messageFormatter.format(event.message, appendable)
+        messageFormatter.format(event.message, event.throwable, appendable)
     }
 
     private fun formatItems(
@@ -163,6 +167,15 @@ class JsonLogEventSerializer(
     ) {
         val items = if (mergeContextToItems) event.items + event.context else event.items
         itemsFormatter.format(items, appendable)
+    }
+
+    private fun formatException(
+        event: LogEvent,
+        appendable: Appendable,
+    ) {
+        if (exceptionFormatter != null && event.throwable != null) {
+            exceptionFormatter.format(event.throwable, appendable)
+        }
     }
 
     private data class Node(
@@ -197,12 +210,6 @@ class JsonLogEventSerializer(
         } else {
             val child = node.children.getOrPut(path[idx]) { Node(path[idx]) }
             addChild(child, idx + 1, path, value)
-        }
-    }
-
-    companion object {
-        fun default(): JsonLogEventSerializer {
-            return JsonLogEventSerializer()
         }
     }
 }

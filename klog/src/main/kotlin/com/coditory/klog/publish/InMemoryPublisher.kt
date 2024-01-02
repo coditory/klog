@@ -12,4 +12,8 @@ class InMemoryPublisher : BlockingPublisher {
     fun getLogs(): List<LogEvent> = events
 
     fun getLastLog(): LogEvent? = events.lastOrNull()
+
+    fun clear() {
+        events.clear()
+    }
 }

@@ -49,7 +49,7 @@ class SystemOutPublisher(
         }
 
         fun json(): SystemOutPublisher {
-            val formatter = JsonLogEventSerializer.default()
+            val formatter = JsonLogEventSerializer()
             return SystemOutPublisher(formatter)
         }
     }

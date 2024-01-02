@@ -1,11 +1,18 @@
 package com.coditory.klog
 
 import com.coditory.klog.config.KlogConfig
+import com.coditory.klog.config.KlogConfigBuilder
 import com.coditory.klog.config.klogConfig
 import com.coditory.klog.publish.SystemOutPublisher
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+
+fun klog(init: KlogConfigBuilder.() -> Unit): Klog {
+    val config = KlogConfigBuilder()
+    config.init()
+    return Klog(config.build())
+}
 
 class Klog(config: KlogConfig) {
     private val loggers = ConcurrentHashMap<String, KlogLoggerHolder>()
@@ -69,6 +76,12 @@ class Klog(config: KlogConfig) {
 
         fun configure(config: KlogConfig) {
             GLOBAL_INSTANCE.reconfigure(config)
+        }
+
+        fun configure(init: KlogConfigBuilder.() -> Unit) {
+            val config = KlogConfigBuilder()
+            config.init()
+            GLOBAL_INSTANCE.reconfigure(config.build())
         }
 
         fun flush() {

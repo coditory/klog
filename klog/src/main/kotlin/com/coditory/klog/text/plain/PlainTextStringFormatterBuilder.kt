@@ -5,6 +5,7 @@ import kotlin.math.max
 class PlainTextStringFormatterBuilder internal constructor() {
     private var cacheSize: Int = 0
     private var maxLength: Int = Integer.MAX_VALUE
+    private var maxLengthMarker: String = ""
     private var padding: Padding? = null
     private var prefix: StyledText = StyledText.empty()
     private var postfix: StyledText = StyledText.empty()
@@ -23,6 +24,11 @@ class PlainTextStringFormatterBuilder internal constructor() {
 
     fun maxLength(maxLength: Int): PlainTextStringFormatterBuilder {
         this.maxLength = maxLength
+        return this
+    }
+
+    fun maxLengthMarker(maxLengthMarker: String): PlainTextStringFormatterBuilder {
+        this.maxLengthMarker = maxLengthMarker
         return this
     }
 
@@ -104,6 +110,7 @@ class PlainTextStringFormatterBuilder internal constructor() {
             } else {
                 ConfigurablePlainTextStringFormatter(
                     maxLength = maxLength,
+                    maxLengthMarker = maxLengthMarker,
                     padding = padding,
                     prefix = prefix,
                     postfix = postfix,
@@ -127,6 +134,7 @@ class PlainTextStringFormatterBuilder internal constructor() {
 
 internal class ConfigurablePlainTextStringFormatter(
     private val maxLength: Int,
+    private val maxLengthMarker: String,
     private val padding: Padding?,
     private val prefix: StyledText,
     private val postfix: StyledText,
@@ -151,6 +159,7 @@ internal class ConfigurablePlainTextStringFormatter(
             appendable.append(text)
         } else {
             appendable.append(text, 0, maxLength)
+            appendable.append(maxLengthMarker)
         }
         appendable.append(style.postfix)
         if (padding?.right() == true && text.length < maxLength) {

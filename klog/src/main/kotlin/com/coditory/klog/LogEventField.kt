@@ -8,6 +8,7 @@ enum class LogEventField {
     LOGGER,
     MESSAGE,
     ITEMS,
+    EXCEPTION,
     ;
 
     internal fun skip(
@@ -27,7 +28,7 @@ enum class LogEventField {
 
     companion object {
         fun all(): List<LogEventField> {
-            return listOf(TIMESTAMP, LEVEL, THREAD, CONTEXT, LOGGER, MESSAGE, ITEMS)
+            return listOf(TIMESTAMP, LEVEL, THREAD, CONTEXT, LOGGER, MESSAGE, ITEMS, EXCEPTION)
         }
     }
 }

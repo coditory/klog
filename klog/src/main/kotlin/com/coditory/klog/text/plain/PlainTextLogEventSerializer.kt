@@ -17,10 +17,11 @@ class PlainTextLogEventSerializer(
     private val levelFormatter: PlainTextLevelFormatter = PlainTextLevelFormatter.default(),
     private val loggerNameFormatter: PlainTextStringFormatter = PlainTextStringFormatter.default(),
     private val threadFormatter: PlainTextStringFormatter = PlainTextStringFormatter.default(),
-    private val messageFormatter: PlainTextStringFormatter = PlainTextStringFormatter.default(),
+    private val messageFormatter: PlainTextMessageFormatter = PlainTextMessageFormatter.messageOnly(),
     private val contextFormatter: PlainTextContextFormatter = PlainTextContextFormatter.default(),
     private val itemsFormatter: PlainTextMapFormatter = PlainTextMapFormatter.default(),
     private val messageSeparator: String = ": ",
+    private val exceptionFormatter: PlainTextExceptionFormatter? = PlainTextExceptionFormatter.fullStackTrace(),
     private val mergeContextToItems: Boolean = false,
 ) : TextLogEventSerializer {
     override fun format(
@@ -48,6 +49,7 @@ class PlainTextLogEventSerializer(
                 LogEventField.CONTEXT -> formatContext(event, sized)
                 LogEventField.MESSAGE -> formatMessage(event, sized)
                 LogEventField.ITEMS -> formatItems(event, sized)
+                LogEventField.EXCEPTION -> formatException(event, sized)
             }
         }
     }
@@ -91,7 +93,7 @@ class PlainTextLogEventSerializer(
         event: LogEvent,
         appendable: Appendable,
     ) {
-        messageFormatter.format(event.message, appendable)
+        messageFormatter.format(event.message, event.throwable, appendable)
     }
 
     private fun formatItems(
@@ -100,6 +102,15 @@ class PlainTextLogEventSerializer(
     ) {
         val items = if (mergeContextToItems) event.items + event.context else event.items
         itemsFormatter.format(items, appendable)
+    }
+
+    private fun formatException(
+        event: LogEvent,
+        appendable: Appendable,
+    ) {
+        if (exceptionFormatter != null && event.throwable != null) {
+            exceptionFormatter.format(event.throwable, appendable)
+        }
     }
 
     companion object {
@@ -117,7 +128,6 @@ class PlainTextLogEventSerializer(
                 threadFormatter =
                     PlainTextStringFormatter.builder().ansi(ansiResolved).style(threadStyle).prefix("[")
                         .postfix("]").build(),
-                messageFormatter = PlainTextStringFormatter.default(),
             )
         }
 
@@ -128,7 +138,7 @@ class PlainTextLogEventSerializer(
                 levelFormatter = PlainTextLevelFormatter.leftPadded(),
                 loggerNameFormatter = PlainTextStringFormatter.builder().compactSections().maxLength(1024).build(),
                 threadFormatter = PlainTextStringFormatter.builder().prefix("[").postfix("]").maxLength(1024).build(),
-                messageFormatter = PlainTextStringFormatter.builder().maxLength(100 * 1024).build(),
+                messageFormatter = PlainTextMessageFormatter.messageOnly(PlainTextStringFormatter.limitted()),
             )
         }
     }

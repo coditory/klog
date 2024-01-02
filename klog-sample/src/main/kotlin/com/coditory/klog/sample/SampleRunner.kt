@@ -6,6 +6,8 @@ object SampleRunner {
     @JvmStatic
     fun main(args: Array<String>) {
         val l = Klog.logger<SampleRunner>()
+        val e = IllegalArgumentException("Sample exception")
+        l.error(e) { "Testing error" }
 //        runBlocking {
 //            repeat(10000) {
 //                launch {
