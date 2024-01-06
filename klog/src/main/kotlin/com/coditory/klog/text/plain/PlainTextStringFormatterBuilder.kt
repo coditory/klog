@@ -37,7 +37,7 @@ class PlainTextStringFormatterBuilder internal constructor() {
         return this
     }
 
-    fun pasRight(pad: Char = ' '): PlainTextStringFormatterBuilder {
+    fun padRight(pad: Char = ' '): PlainTextStringFormatterBuilder {
         this.padding = Padding.right(pad)
         return this
     }
@@ -68,7 +68,7 @@ class PlainTextStringFormatterBuilder internal constructor() {
         return this
     }
 
-    fun mapped(mapper: (String) -> String?): PlainTextStringFormatterBuilder {
+    fun mapper(mapper: (String) -> String?): PlainTextStringFormatterBuilder {
         this.mapper = mapper
         return this
     }
@@ -102,6 +102,7 @@ class PlainTextStringFormatterBuilder internal constructor() {
                 CompactedPlainTextStringFormatter(
                     separator = separator,
                     maxLength = maxLength,
+                    maxLengthMarker = maxLengthMarker,
                     padding = padding,
                     prefix = prefix,
                     postfix = postfix,
@@ -149,13 +150,16 @@ internal class ConfigurablePlainTextStringFormatter(
         text: String,
         appendable: Appendable,
     ) {
-        if (text.isEmpty()) return
+        if (text.isEmpty()) {
+            if (pad != null) appendable.append(pad)
+            return
+        }
         prefix.format(appendable)
         if (padding?.left() == true && text.length < maxLength) {
-            appendable.append(pad, 0, text.length - maxLength)
+            appendable.append(pad, 0, maxLength - text.length)
         }
         appendable.append(style.prefix)
-        if (text.length < maxLength) {
+        if (text.length <= maxLength) {
             appendable.append(text)
         } else {
             appendable.append(text, 0, maxLength)
@@ -163,7 +167,7 @@ internal class ConfigurablePlainTextStringFormatter(
         }
         appendable.append(style.postfix)
         if (padding?.right() == true && text.length < maxLength) {
-            appendable.append(pad, 0, text.length - maxLength)
+            appendable.append(pad, 0, maxLength - text.length)
         }
         postfix.format(appendable)
     }
@@ -172,6 +176,7 @@ internal class ConfigurablePlainTextStringFormatter(
 internal class CompactedPlainTextStringFormatter(
     private val separator: Char,
     private val maxLength: Int,
+    private val maxLengthMarker: String,
     private val padding: Padding?,
     private val prefix: StyledText,
     private val postfix: StyledText,
@@ -186,32 +191,59 @@ internal class CompactedPlainTextStringFormatter(
         text: String,
         appendable: Appendable,
     ) {
-        if (text.isEmpty()) return
+        if (text.isEmpty()) {
+            if (pad != null) appendable.append(pad)
+            return
+        }
         val chunks = text.split(separator).filter { it.isNotEmpty() }
         val last = chunks.last()
         prefix.format(appendable)
-        if (last.length + 1 > maxLength) {
+        if (chunks.size == 1 || last.length >= maxLength - 1) {
+            if (padding?.left() == true && text.length < maxLength) {
+                appendable.append(pad, 0, maxLength - text.length)
+            }
             appendable.append(style.prefix)
-            appendable.append(last.substring(0, maxLength))
+            if (last.length > maxLength) {
+                appendable.append(last.substring(0, maxLength))
+                appendable.append(maxLengthMarker)
+            } else {
+                appendable.append(last)
+            }
             appendable.append(style.postfix)
+            if (padding?.right() == true && text.length < maxLength) {
+                appendable.append(pad, 0, maxLength - text.length)
+            }
             postfix.format(appendable)
             return
         }
         val length = (chunks.size * 2) + last.length
-        if (padding?.left() == true && length < maxLength) {
-            appendable.append(pad, 0, length - maxLength)
-        }
         val prefixMaxLength = maxLength - last.length
-        val start = max(0, chunks.size - (prefixMaxLength / 2))
+        if (padding?.left() == true) {
+            if (length < maxLength) {
+                appendable.append(pad, 0, maxLength - length)
+            } else if (prefixMaxLength % 2 == 1) {
+                appendable.append(pad, 0, 1)
+            }
+        }
+        val start = max(0, chunks.size - 1 - (prefixMaxLength / 2))
         appendable.append(style.prefix)
-        for (i in start..<chunks.size) {
+        for (i in start..<chunks.size - 1) {
             appendable.append(chunks[i][0])
             appendable.append(separator)
         }
-        appendable.append(last)
+        if (last.length <= maxLength) {
+            appendable.append(last)
+        } else {
+            appendable.append(last, 0, maxLength)
+            appendable.append(maxLengthMarker)
+        }
         appendable.append(style.postfix)
-        if (padding?.right() == true && length < maxLength) {
-            appendable.append(pad, 0, length - maxLength)
+        if (padding?.right() == true) {
+            if (length < maxLength) {
+                appendable.append(pad, 0, maxLength - length)
+            } else if (prefixMaxLength % 2 == 1) {
+                appendable.append(pad, 0, 1)
+            }
         }
         postfix.format(appendable)
     }

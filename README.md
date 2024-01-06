@@ -14,6 +14,6 @@ Add dependency to `build.gradle.kts`:
 
 ```kts
 dependencies {
-  implementation("com.coditory.klog:klog:0.0.1")
+  implementation("com.coditory.klog:klog:$version")
 }
 ```
