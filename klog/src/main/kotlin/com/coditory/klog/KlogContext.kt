@@ -1,7 +1,6 @@
 package com.coditory.klog
 
 import com.coditory.klog.config.AsyncLogPublisherConfig
-import com.coditory.klog.config.BatchLogPublisherConfig
 import com.coditory.klog.config.BlockingLogPublisherConfig
 import com.coditory.klog.config.KlogConfig
 import com.coditory.klog.config.KlogErrLogger
@@ -12,7 +11,6 @@ import com.coditory.klog.publish.BlockingLogSink
 import com.coditory.klog.publish.BufferedLogSink
 import com.coditory.klog.publish.LogPublisher
 import com.coditory.klog.publish.LogPublisherListener
-import com.coditory.klog.publish.SerialBatchLogPublisher
 import com.coditory.klog.publish.SerialLogPublisher
 import java.time.Clock
 
@@ -71,7 +69,6 @@ internal data class KlogContext(
             return when (config) {
                 is BlockingLogPublisherConfig -> buildBlockingLogPublisher(descriptor, config, klogConfig)
                 is AsyncLogPublisherConfig -> buildAsyncLogPublisher(descriptor, config, klogConfig)
-                is BatchLogPublisherConfig -> buildBatchLogPublisher(descriptor, config, klogConfig)
             }
         }
 
@@ -103,38 +100,18 @@ internal data class KlogContext(
                         klogErrLogger = klogConfig.klogErrLogger,
                     )
                 }
-            return BufferedLogSink(
-                publisher = serialAsyncLogPublisher,
-                standardLogBufferCapacity = config.standardLogBufferCapacity,
-                prioritizedLogBufferCapacity = config.prioritizedLogBufferCapacity,
-                listener = LogPublisherListener.entry(descriptor, klogConfig.listener),
-                klogErrLogger = klogConfig.klogErrLogger,
-            )
-        }
-
-        private fun buildBatchLogPublisher(
-            descriptor: LogPublisherDescriptor,
-            config: BatchLogPublisherConfig,
-            klogConfig: KlogConfig,
-        ): LogPublisher {
-            val serialAsyncLogPublisher =
-                if (!config.serialize) {
-                    config.publisher
-                } else {
-                    SerialBatchLogPublisher(
-                        publisher = config.publisher,
-                        listener = LogPublisherListener.terminal(descriptor, klogConfig.listener),
+            val batchingAsyncPublisher =
+                if (config.batchSize > 0) {
+                    BatchingLogPublisher(
+                        publisher = serialAsyncLogPublisher,
+                        batchSize = config.batchSize,
+                        maxBatchStaleness = config.maxBatchStaleness,
+                        listener = LogPublisherListener.middle(descriptor, klogConfig.listener),
                         klogErrLogger = klogConfig.klogErrLogger,
                     )
+                } else {
+                    serialAsyncLogPublisher
                 }
-            val batchingAsyncPublisher =
-                BatchingLogPublisher(
-                    publisher = serialAsyncLogPublisher,
-                    batchSize = config.batchSize,
-                    maxBatchStaleness = config.maxBatchStaleness,
-                    listener = LogPublisherListener.middle(descriptor, klogConfig.listener),
-                    klogErrLogger = klogConfig.klogErrLogger,
-                )
             return BufferedLogSink(
                 publisher = batchingAsyncPublisher,
                 standardLogBufferCapacity = config.standardLogBufferCapacity,

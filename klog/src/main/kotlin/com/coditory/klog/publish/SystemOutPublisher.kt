@@ -8,7 +8,7 @@ import com.coditory.klog.text.plain.PlainTextLogEventSerializer
 
 class SystemOutPublisher(
     private val formatter: TextLogEventSerializer,
-) : AsyncLogPublisher, BatchLogPublisher {
+) : AsyncLogPublisher {
     override suspend fun publishAsync(event: LogEvent) {
         // performance tests reveal that there is no use in switching to IO dispatcher
         publishBlocking(event)

@@ -2,7 +2,6 @@ package com.coditory.klog.config
 
 import com.coditory.klog.Level
 import com.coditory.klog.publish.AsyncLogPublisher
-import com.coditory.klog.publish.BatchLogPublisher
 import com.coditory.klog.publish.BlockingPublisher
 
 data class LogStreamConfig(
@@ -30,6 +29,14 @@ class LogStreamConfigBuilder {
         return this
     }
 
+    fun filter(
+        levelRange: LevelRange,
+        nameMatcher: LoggerNameMatcher,
+    ): LogStreamConfigBuilder {
+        this.filter = LogFilter(levelRange, nameMatcher)
+        return this
+    }
+
     fun stopOnMatch(stopOnMatch: Boolean): LogStreamConfigBuilder {
         this.stopOnMatch = stopOnMatch
         return this
@@ -50,16 +57,6 @@ class LogStreamConfigBuilder {
         configure: AsyncLogPublisherConfigBuilder.() -> Unit = {},
     ): LogStreamConfigBuilder {
         val builder = AsyncLogPublisherConfigBuilder(publisher)
-        configure(builder)
-        this.publishers.add(builder.build())
-        return this
-    }
-
-    fun batchPublisher(
-        publisher: BatchLogPublisher,
-        configure: BatchLogPublisherConfigBuilder.() -> Unit = {},
-    ): LogStreamConfigBuilder {
-        val builder = BatchLogPublisherConfigBuilder(publisher)
         configure(builder)
         this.publishers.add(builder.build())
         return this

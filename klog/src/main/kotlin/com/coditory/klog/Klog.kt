@@ -69,7 +69,7 @@ class Klog(config: KlogConfig) {
             Klog(
                 klogConfig {
                     stream {
-                        batchPublisher(SystemOutPublisher.plainText(development = true))
+                        asyncPublisher(SystemOutPublisher.plainText(development = true))
                     }
                 },
             )

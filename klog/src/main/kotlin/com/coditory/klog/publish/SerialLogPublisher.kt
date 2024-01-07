@@ -36,4 +36,8 @@ internal class SerialLogPublisher(
             listener.dropped(event, e)
         }
     }
+
+    override suspend fun publishBatchAsync(events: List<LogEvent>) {
+        events.forEach { publishAsync(it) }
+    }
 }

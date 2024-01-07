@@ -6,10 +6,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class SerialBatchLogPublisher(
-    private val publisher: BatchLogPublisher,
+    private val publisher: AsyncLogPublisher,
     private val listener: LogPublisherListener = LogPublisherListener.NOOP,
     private val klogErrLogger: KlogErrLogger = KlogErrLogger.STDERR,
-) : BatchLogPublisher {
+) : AsyncLogPublisher {
     private val mutex = Mutex()
 
     override suspend fun stopAndFlush() {
@@ -22,6 +22,10 @@ internal class SerialBatchLogPublisher(
 
     override suspend fun publishSuspending(event: LogEvent) {
         publisher.publishSuspending(event)
+    }
+
+    override suspend fun publishAsync(event: LogEvent) {
+        publisher.publishBatchAsync(listOf(event))
     }
 
     override suspend fun publishBatchAsync(events: List<LogEvent>) {

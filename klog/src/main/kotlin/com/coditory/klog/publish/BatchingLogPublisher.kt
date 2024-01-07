@@ -16,7 +16,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 internal class BatchingLogPublisher(
-    private val publisher: BatchLogPublisher,
+    private val publisher: AsyncLogPublisher,
     private val batchSize: Int = Defaults.batchSize,
     private val maxBatchStaleness: Duration = Defaults.maxBatchStaleness,
     private val klogErrLogger: KlogErrLogger = KlogErrLogger.STDERR,
@@ -82,6 +82,10 @@ internal class BatchingLogPublisher(
                 listener.dropped(current, e)
             }
         }
+    }
+
+    override suspend fun publishBatchAsync(events: List<LogEvent>) {
+        events.forEach { publishAsync(it) }
     }
 
     override fun publishBlocking(event: LogEvent) =

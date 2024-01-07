@@ -8,9 +8,7 @@ interface LogPublisher : FlushablePublisher, BlockingPublisher {
 
 interface AsyncLogPublisher : FlushablePublisher, BlockingPublisher {
     suspend fun publishAsync(event: LogEvent)
-}
 
-interface BatchLogPublisher : FlushablePublisher, BlockingPublisher {
     suspend fun publishBatchAsync(events: List<LogEvent>)
 }
 
