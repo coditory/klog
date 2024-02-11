@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -46,7 +46,7 @@ jobs:
           reporter: java-junit
 
       - name: Publish Coverage Report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         if: github.repository == 'coditory/klog' && github.ref == 'refs/heads/main'
         continue-on-error: true
         with:
