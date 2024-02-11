@@ -28,7 +28,7 @@ data class KlogConfig(
 class KlogConfigBuilder {
     private val streams: List<LogStreamConfig> = mutableListOf()
     private var clock: Clock = Clock.systemDefaultZone()
-    private var zoneId: ZoneId = ZoneId.systemDefault()
+    private var zoneId: ZoneId = clock.zone
     private var listener: LogListener = LogListener.NOOP
     private var klogErrLogger: KlogErrLogger = KlogErrLogger.STDERR
     private var synchronizeLoggers: Boolean = false
