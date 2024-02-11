@@ -37,7 +37,7 @@ class PlainTextLogEventSerializer(
                 if (field == LogEventField.MESSAGE) {
                     sized.append(messageSeparator)
                 } else {
-                    sized.append(' ')
+                    sized.appendLazy(' ')
                 }
                 length = sized.length()
             }

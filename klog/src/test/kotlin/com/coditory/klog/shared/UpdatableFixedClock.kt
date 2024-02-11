@@ -32,6 +32,7 @@ class UpdatableFixedClock(
 
     companion object {
         // Always use instant with nanos for testing. Some databases (like mongo) trim nanos - you should test for that!
+        val DEFAULT_FIXED_TIME_LOG_STR = "2015-12-03T11:15:30.123456+01:00"
         val DEFAULT_FIXED_TIME = Instant.parse("2015-12-03T10:15:30.123456Z")
         val DEFAULT_ZONE_ID = ZoneId.of("Europe/Warsaw")
     }

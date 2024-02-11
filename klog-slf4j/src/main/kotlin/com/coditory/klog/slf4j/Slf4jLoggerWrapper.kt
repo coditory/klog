@@ -31,7 +31,7 @@ class Slf4jLoggerWrapper(
     override fun trace(
         format: String?,
         vararg arguments: Any?,
-    ) = logger.trace { MessageFormatter.format(format, arguments).message ?: "" }
+    ) = logger.trace { MessageFormatter.arrayFormat(format, arguments).message ?: "" }
 
     override fun trace(
         msg: String?,
@@ -60,7 +60,7 @@ class Slf4jLoggerWrapper(
     override fun debug(
         format: String?,
         vararg arguments: Any?,
-    ) = logger.debug { MessageFormatter.format(format, arguments).message ?: "" }
+    ) = logger.debug { MessageFormatter.arrayFormat(format, arguments).message ?: "" }
 
     override fun debug(
         msg: String?,
@@ -89,7 +89,7 @@ class Slf4jLoggerWrapper(
     override fun info(
         format: String?,
         vararg arguments: Any?,
-    ) = logger.info { MessageFormatter.format(format, arguments).message ?: "" }
+    ) = logger.info { MessageFormatter.arrayFormat(format, arguments).message ?: "" }
 
     override fun info(
         msg: String?,
@@ -118,7 +118,7 @@ class Slf4jLoggerWrapper(
     override fun warn(
         format: String?,
         vararg arguments: Any?,
-    ) = logger.warn { MessageFormatter.format(format, arguments).message ?: "" }
+    ) = logger.warn { MessageFormatter.arrayFormat(format, arguments).message ?: "" }
 
     override fun warn(
         msg: String?,
@@ -147,7 +147,7 @@ class Slf4jLoggerWrapper(
     override fun error(
         format: String?,
         vararg arguments: Any?,
-    ) = logger.error { MessageFormatter.format(format, arguments).message ?: "" }
+    ) = logger.error { MessageFormatter.arrayFormat(format, arguments).message ?: "" }
 
     override fun error(
         msg: String?,

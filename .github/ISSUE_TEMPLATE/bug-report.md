@@ -5,7 +5,7 @@ labels: bug
 ---
 
 <!-- The bug you're experiencing might have already be reported. -->
-<!-- Please search in the [issues](https://github.com/coditory/sherlock-distributed-lock/issues) before creating one. -->
+<!-- Please search in the [issues](https://github.com/coditory/klog/issues) before creating one. -->
 
 ## Context
 <!-- How has this issue affected you? What are you trying to accomplish? -->

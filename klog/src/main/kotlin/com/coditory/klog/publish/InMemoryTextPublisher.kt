@@ -1,0 +1,63 @@
+package com.coditory.klog.publish
+
+import com.coditory.klog.LogEvent
+import com.coditory.klog.text.TextLogEventSerializer
+import com.coditory.klog.text.plain.PlainTextLogEventSerializer
+
+class InMemoryTextPublisher(
+    private val serializer: TextLogEventSerializer = PlainTextLogEventSerializer(),
+) : BlockingPublisher {
+    private val logs = mutableListOf<LogEntry>()
+
+    @Synchronized
+    override fun publishBlocking(event: LogEvent) {
+        val sb = StringBuilder()
+        serializer.format(event, sb)
+        logs.add(
+            LogEntry(
+                event = event,
+                message = sb.toString(),
+            ),
+        )
+    }
+
+    @Synchronized
+    fun getLogs(): List<String> = logs.map { it.message }
+
+    @Synchronized
+    fun getLastLog(): String? = logs.lastOrNull()?.message
+
+    @Synchronized
+    fun getLogEntries(): List<LogEntry> = logs
+
+    @Synchronized
+    fun getLastLogEntry(): LogEntry? = logs.lastOrNull()
+
+    @Synchronized
+    fun getLogEvents(): List<LogEvent> = logs.map { it.event }
+
+    @Synchronized
+    fun getLastLogEvent(): LogEvent? = logs.lastOrNull()?.event
+
+    @Synchronized
+    fun clear() {
+        logs.clear()
+    }
+
+    data class LogEntry(
+        val event: LogEvent,
+        val message: String,
+    )
+
+    companion object {
+        const val TEST_THREAD_NAME = "@THREAD"
+
+        fun testPublisher(): InMemoryTextPublisher {
+            return InMemoryTextPublisher(
+                PlainTextLogEventSerializer(
+                    threadFormatter = { _, appendable -> appendable.append(TEST_THREAD_NAME) },
+                ),
+            )
+        }
+    }
+}
