@@ -35,6 +35,7 @@ class PlainTextLogEventSerializer(
             if (field.skip(event, mergeContextToItems)) continue
             if (length < sized.length()) {
                 if (field == LogEventField.MESSAGE) {
+                    sized.appendLazy(null)
                     sized.append(messageSeparator)
                 } else {
                     sized.appendLazy(' ')
@@ -124,10 +125,16 @@ class PlainTextLogEventSerializer(
                 fields = LogEventField.all(),
                 timestampFormatter = PlainTextTimestampFormatter.fromLocalTime(timestampStyle),
                 levelFormatter = levelFormatter,
-                loggerNameFormatter = PlainTextStringFormatter.builder().ansi(ansiResolved).compactSections().build(),
-                threadFormatter =
-                    PlainTextStringFormatter.builder().ansi(ansiResolved).style(threadStyle).prefix("[")
-                        .postfix("]").build(),
+                loggerNameFormatter = PlainTextStringFormatter.builder()
+                    .ansi(ansiResolved)
+                    .compactSections()
+                    .build(),
+                threadFormatter = PlainTextStringFormatter.builder()
+                    .ansi(ansiResolved)
+                    .style(threadStyle)
+                    .prefix("[")
+                    .postfix("]")
+                    .build(),
             )
         }
 

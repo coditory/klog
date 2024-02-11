@@ -24,10 +24,9 @@ internal data class KlogContext(
     companion object {
         fun build(config: KlogConfig): KlogContext {
             return KlogContext(
-                streams =
-                    config.streams.mapIndexed { idx, stream ->
-                        buildStream(idx, stream, config)
-                    },
+                streams = config.streams.mapIndexed { idx, stream ->
+                    buildStream(idx, stream, config)
+                },
                 clock = config.clock,
                 listener = config.listener,
                 klogErrLogger = config.klogErrLogger,
@@ -43,12 +42,11 @@ internal data class KlogContext(
             val streamDescriptor = LogStreamDescriptor(streamIdx, config.filter)
             val publishers =
                 config.publishers.mapIndexed { idx, publisher ->
-                    val descriptor =
-                        LogPublisherDescriptor(
-                            stream = streamDescriptor,
-                            publisherIdx = idx,
-                            publisherType = publisher.javaClass,
-                        )
+                    val descriptor = LogPublisherDescriptor(
+                        stream = streamDescriptor,
+                        publisherIdx = idx,
+                        publisherType = publisher.javaClass,
+                    )
                     buildPublisher(descriptor, publisher, klogConfig)
                 }
             return LogStream(

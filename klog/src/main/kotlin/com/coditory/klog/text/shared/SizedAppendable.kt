@@ -15,7 +15,7 @@ internal class SizedAppendable(
         return length
     }
 
-    fun appendLazy(csq: CharSequence): Appendable {
+    fun appendLazy(csq: CharSequence?): Appendable {
         lazyAppend = csq
         lazyAppendChar = null
         return this

@@ -3,6 +3,9 @@ package com.coditory.klog.publish
 import com.coditory.klog.LogEvent
 import com.coditory.klog.text.TextLogEventSerializer
 import com.coditory.klog.text.plain.PlainTextLogEventSerializer
+import com.coditory.klog.text.plain.PlainTextTimestampFormatter
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class InMemoryTextPublisher(
     private val serializer: TextLogEventSerializer = PlainTextLogEventSerializer(),
@@ -55,6 +58,9 @@ class InMemoryTextPublisher(
         fun testPublisher(): InMemoryTextPublisher {
             return InMemoryTextPublisher(
                 PlainTextLogEventSerializer(
+                    timestampFormatter = PlainTextTimestampFormatter.from(
+                        DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.of("UTC")),
+                    ),
                     threadFormatter = { _, appendable -> appendable.append(TEST_THREAD_NAME) },
                 ),
             )
