@@ -104,8 +104,11 @@ internal data class KlogContext(
                         publisher = serialAsyncLogPublisher,
                         batchSize = config.batchSize,
                         maxBatchStaleness = config.maxBatchStaleness,
-                        listener = if (config.serialize) LogPublisherListener.middle(descriptor, klogConfig.listener)
-                        else LogPublisherListener.terminal(descriptor, klogConfig.listener),
+                        listener = if (config.serialize) {
+                            LogPublisherListener.middle(descriptor, klogConfig.listener)
+                        } else {
+                            LogPublisherListener.terminal(descriptor, klogConfig.listener)
+                        },
                         klogErrLogger = klogConfig.klogErrLogger,
                     )
                 } else {

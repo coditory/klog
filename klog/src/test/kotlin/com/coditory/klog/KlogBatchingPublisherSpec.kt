@@ -56,7 +56,7 @@ class KlogBatchingPublisherSpec : FunSpec({
             "Received: Hello",
             "StreamEnd: Hello",
             "LogEnd: Hello",
-            "Published: [Hello]"
+            "Published: [Hello]",
         )
     }
 
