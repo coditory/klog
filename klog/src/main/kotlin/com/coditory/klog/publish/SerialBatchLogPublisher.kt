@@ -17,15 +17,36 @@ internal class SerialBatchLogPublisher(
     }
 
     override fun publishBlocking(event: LogEvent) {
-        publisher.publishBlocking(event)
+        listener.received(event)
+        try {
+            publisher.publishBlocking(event)
+            listener.published(event)
+        } catch (e: Throwable) {
+            klogErrLogger.logDropped(e)
+            listener.dropped(event, e)
+        }
     }
 
     override suspend fun publishSuspending(event: LogEvent) {
-        publisher.publishSuspending(event)
+        listener.received(event)
+        try {
+            publisher.publishSuspending(event)
+            listener.published(event)
+        } catch (e: Throwable) {
+            klogErrLogger.logDropped(e)
+            listener.dropped(event, e)
+        }
     }
 
     override suspend fun publishAsync(event: LogEvent) {
-        publisher.publishBatchAsync(listOf(event))
+        listener.received(event)
+        try {
+            publisher.publishBatchAsync(listOf(event))
+            listener.published(event)
+        } catch (e: Throwable) {
+            klogErrLogger.logDropped(e)
+            listener.dropped(event, e)
+        }
     }
 
     override suspend fun publishBatchAsync(events: List<LogEvent>) {
@@ -36,7 +57,7 @@ internal class SerialBatchLogPublisher(
                 listener.published(events)
             }
         } catch (e: Throwable) {
-            klogErrLogger.log { "${this::class.simpleName}: Could not publish log. Cause: " + e.stackTraceToString() }
+            klogErrLogger.logDropped(e)
             listener.dropped(events, e)
         }
     }

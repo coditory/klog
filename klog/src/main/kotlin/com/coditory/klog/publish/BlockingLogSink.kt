@@ -25,7 +25,7 @@ internal class BlockingLogSink(
             publisher.publishBlocking(event)
             listener.onPublished(descriptor, event)
         } catch (e: Throwable) {
-            klogErrLogger.log { "${publisher::class.simpleName}: Could not publish log. Cause: " + e.stackTraceToString() }
+            klogErrLogger.logDropped(e)
             listener.onDropped(descriptor, event, e)
         }
     }
@@ -36,7 +36,7 @@ internal class BlockingLogSink(
             publisher.publishSuspending(event)
             listener.onPublished(descriptor, event)
         } catch (e: Throwable) {
-            klogErrLogger.log { "${publisher::class.simpleName}: Could not publish log. Cause: " + e.stackTraceToString() }
+            klogErrLogger.logDropped(e)
             listener.onDropped(descriptor, event, e)
         }
     }

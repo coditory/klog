@@ -9,8 +9,16 @@ import java.time.format.DateTimeFormatter
 
 class InMemoryTextPublisher(
     private val serializer: TextLogEventSerializer = PlainTextLogEventSerializer(),
-) : BlockingPublisher {
+) : BlockingPublisher, AsyncLogPublisher {
     private val logs = mutableListOf<LogEntry>()
+
+    override suspend fun publishAsync(event: LogEvent) {
+        publishBlocking(event)
+    }
+
+    override suspend fun publishBatchAsync(events: List<LogEvent>) {
+        events.forEach { publishBlocking(it) }
+    }
 
     @Synchronized
     override fun publishBlocking(event: LogEvent) {

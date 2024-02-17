@@ -10,44 +10,52 @@ interface LogListener {
     fun onStreamStart(
         stream: LogStreamDescriptor,
         event: LogEvent,
-    ) {}
+    ) {
+    }
 
     fun onStreamEnd(
         stream: LogStreamDescriptor,
         event: LogEvent,
-    ) {}
+    ) {
+    }
 
     fun onReceived(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
-    ) {}
+    ) {
+    }
 
     fun onReceived(
         publisher: LogPublisherDescriptor,
-        event: List<LogEvent>,
-    ) {}
+        events: List<LogEvent>,
+    ) {
+    }
 
     fun onDropped(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
         e: Throwable? = null,
-    ) {}
+    ) {
+    }
 
     fun onDropped(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
         e: Throwable? = null,
-    ) {}
+    ) {
+    }
 
     fun onPublished(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
-    ) {}
+    ) {
+    }
 
     fun onPublished(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
-    ) {}
+    ) {
+    }
 
     companion object {
         internal val NOOP = object : LogListener {}

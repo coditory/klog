@@ -50,8 +50,9 @@ internal class BatchingLogPublisher(
         if (current.isNotEmpty()) {
             try {
                 publisher.publishBatchAsync(current)
+                listener.published(current)
             } catch (e: Throwable) {
-                klogErrLogger.log { "${this::class.simpleName}: Could not publish log on timer. Cause: " + e.stackTraceToString() }
+                klogErrLogger.logDropped(e)
                 listener.dropped(current, e)
             }
         }
@@ -78,7 +79,7 @@ internal class BatchingLogPublisher(
                 publisher.publishBatchAsync(current)
                 listener.published(current)
             } catch (e: Throwable) {
-                klogErrLogger.log { "${this::class.simpleName}: Could not publish batched logs. Cause: " + e.stackTraceToString() }
+                klogErrLogger.logDropped(e)
                 listener.dropped(current, e)
             }
         }
@@ -88,13 +89,28 @@ internal class BatchingLogPublisher(
         events.forEach { publishAsync(it) }
     }
 
-    override fun publishBlocking(event: LogEvent) =
-        runBlocking {
-            publisher.publishBlocking(event)
+    override fun publishBlocking(event: LogEvent) {
+        listener.received(event)
+        try {
+            runBlocking {
+                publisher.publishBlocking(event)
+            }
+            listener.published(event)
+        } catch (e: Throwable) {
+            klogErrLogger.logDropped(e)
+            listener.dropped(event, e)
         }
+    }
 
     override suspend fun publishSuspending(event: LogEvent) {
-        publisher.publishSuspending(event)
+        listener.received(event)
+        try {
+            publisher.publishSuspending(event)
+            listener.published(event)
+        } catch (e: Throwable) {
+            klogErrLogger.logDropped(e)
+            listener.dropped(event, e)
+        }
     }
 
     override suspend fun flush() {

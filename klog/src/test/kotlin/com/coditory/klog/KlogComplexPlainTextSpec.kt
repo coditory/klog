@@ -10,13 +10,12 @@ import io.kotest.matchers.shouldBe
 class KlogComplexPlainTextSpec : FunSpec({
     val clock = UpdatableFixedClock()
     val publisher = InMemoryTextPublisher.testPublisher()
-    val klog =
-        klog {
-            clock(clock)
-            stream {
-                blockingPublisher(publisher)
-            }
+    val klog = klog {
+        clock(clock)
+        stream {
+            blockingPublisher(publisher)
         }
+    }
 
     val logger = klog.logger("com.coditory.Logger")
 

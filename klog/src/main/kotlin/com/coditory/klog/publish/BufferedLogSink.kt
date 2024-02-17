@@ -44,7 +44,7 @@ internal class BufferedLogSink(
             publisher.publishAsync(event)
             listener.published(event)
         } catch (e: Throwable) {
-            klogErrLogger.log { "${this::class.simpleName}: Could not publish log. Cause: " + e.stackTraceToString() }
+            klogErrLogger.logDropped(e)
             listener.dropped(event, e)
         }
     }
@@ -63,11 +63,25 @@ internal class BufferedLogSink(
     }
 
     override fun publishBlocking(event: LogEvent) {
-        publisher.publishBlocking(event)
+        listener.received(event)
+        try {
+            publisher.publishBlocking(event)
+            listener.published(event)
+        } catch (e: Throwable) {
+            klogErrLogger.logDropped(e)
+            listener.dropped(event, e)
+        }
     }
 
     override suspend fun publishSuspending(event: LogEvent) {
-        publisher.publishSuspending(event)
+        listener.received(event)
+        try {
+            publisher.publishSuspending(event)
+            listener.published(event)
+        } catch (e: Throwable) {
+            klogErrLogger.logDropped(e)
+            listener.dropped(event, e)
+        }
     }
 
     override suspend fun flush() {
