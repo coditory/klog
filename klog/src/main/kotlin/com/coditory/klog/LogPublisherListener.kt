@@ -3,15 +3,27 @@ package com.coditory.klog
 interface LogPublisherListener {
     fun onPublishStarted(event: LogEvent) {}
 
-    fun onPublishStarted(events: List<LogEvent>) {}
+    fun onPublishStarted(events: List<LogEvent>) {
+        for (event in events) {
+            onPublishStarted(event)
+        }
+    }
 
     fun onPublishDropped(event: LogEvent, e: Throwable? = null) {}
 
-    fun onPublishDropped(events: List<LogEvent>, e: Throwable? = null) {}
+    fun onPublishDropped(events: List<LogEvent>, e: Throwable? = null) {
+        for (event in events) {
+            onPublishDropped(event, e)
+        }
+    }
 
     fun onPublishEnded(event: LogEvent) {}
 
-    fun onPublishEnded(events: List<LogEvent>) {}
+    fun onPublishEnded(events: List<LogEvent>) {
+        for (event in events) {
+            onPublishEnded(event)
+        }
+    }
 
     companion object {
         internal val NOOP = object : LogPublisherListener {}

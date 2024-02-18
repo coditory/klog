@@ -7,7 +7,11 @@ interface LogStreamListener : LogPublisherListener {
 
     fun onStreamDropped(event: LogEvent, e: Throwable? = null) {}
 
-    fun onStreamDropped(events: List<LogEvent>, e: Throwable? = null) {}
+    fun onStreamDropped(events: List<LogEvent>, e: Throwable? = null) {
+        for (event in events) {
+            onStreamDropped(event, e)
+        }
+    }
 
     companion object {
         internal val NOOP = object : LogStreamListener {}
