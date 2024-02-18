@@ -1,6 +1,6 @@
 package com.coditory.klog
 
-interface LogStreamListener {
+interface LogStreamListener : LogPublisherListener {
     fun onStreamStarted(event: LogEvent) {}
 
     fun onStreamEnded(event: LogEvent) {}
@@ -43,20 +43,9 @@ internal class CompositeLogStreamListener private constructor(
             first: LogStreamListener,
             second: LogStreamListener,
         ): LogStreamListener {
-            if (first == LogStreamListener.NOOP) return second
-            if (second == LogStreamListener.NOOP) return first
+            if (first == LogStreamListener.NOOP || first == LogListener.NOOP) return second
+            if (second == LogStreamListener.NOOP || second == LogListener.NOOP) return first
             return CompositeLogStreamListener(first, second)
-        }
-
-        fun create(
-            first: LogStreamListener,
-            second: LogListener,
-        ): LogStreamListener {
-            return if (second is LogStreamListener) {
-                create(first, second as LogStreamListener)
-            } else {
-                first
-            }
         }
     }
 }

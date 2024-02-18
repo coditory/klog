@@ -57,26 +57,21 @@ internal class CompositeLogPublisherListener private constructor(
             first: LogPublisherListener,
             second: LogPublisherListener,
         ): LogPublisherListener {
-            if (first == LogPublisherListener.NOOP) return second
-            if (second == LogPublisherListener.NOOP) return first
-            return CompositeLogPublisherListener(first, second)
+            return if (isNoop(first)) second else CompositeLogPublisherListener(first, second)
         }
 
         fun create(
             first: LogPublisherListener,
-            second: LogStreamListener,
-            third: LogListener,
+            second: LogPublisherListener,
+            third: LogPublisherListener,
         ): LogPublisherListener {
-            val combined = if (second is LogPublisherListener) {
-                create(first, second as LogPublisherListener)
-            } else {
-                first
-            }
-            return if (third is LogPublisherListener) {
-                create(combined, third as LogPublisherListener)
-            } else {
-                combined
-            }
+            return create(create(first, second), third)
+        }
+
+        private fun isNoop(listener: LogPublisherListener): Boolean {
+            return listener == LogPublisherListener.NOOP ||
+                listener == LogStreamListener.NOOP ||
+                listener == LogListener.NOOP
         }
     }
 }

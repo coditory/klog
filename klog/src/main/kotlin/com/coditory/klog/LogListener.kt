@@ -1,6 +1,6 @@
 package com.coditory.klog
 
-interface LogListener {
+interface LogListener : LogStreamListener, LogPublisherListener {
     fun onLogStarted(event: LogEvent) {}
 
     fun onLogSkipped(event: LogEvent) {}
