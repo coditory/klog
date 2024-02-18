@@ -1,4 +1,4 @@
-rootProject.name = "klog"
+rootProject.name = "klog-logger"
 
 includeBuild("build-logic")
 include("klog")

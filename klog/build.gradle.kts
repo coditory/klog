@@ -1,7 +1,7 @@
 plugins {
     id("build.kotlin")
     id("build.test")
-    id("build.publishing")
+    id("build.publish")
 }
 
 description = "Klog - JVM logger based on kotlin channels"

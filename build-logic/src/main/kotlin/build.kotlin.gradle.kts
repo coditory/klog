@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("build.java")
     kotlin("jvm")
     id("org.jlleitschuh.gradle.ktlint")
     id("org.jetbrains.dokka")

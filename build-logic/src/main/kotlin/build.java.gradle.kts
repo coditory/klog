@@ -1,6 +1,5 @@
 plugins {
     id("java-library")
-    id("build.test")
 }
 
 val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)

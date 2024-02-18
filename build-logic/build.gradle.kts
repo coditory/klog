@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.gradle.dokka)
     implementation(libs.gradle.kover)
     implementation(libs.gradle.testLogger)
+    implementation(libs.gradle.nexusPublish)
 
     compileOnly(files(libs::class.java.protectionDomain.codeSource.location))
 }

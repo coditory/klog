@@ -5,8 +5,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     kotlin("jvm")
+    id("build.coverage")
     id("com.adarshr.test-logger")
-    id("org.jetbrains.kotlinx.kover")
 }
 
 val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)
@@ -58,7 +58,7 @@ tasks.withType<Test>().configureEach {
             TestLogEvent.STANDARD_ERROR,
             TestLogEvent.STANDARD_OUT,
             TestLogEvent.SKIPPED,
-            TestLogEvent.PASSED
+            TestLogEvent.PASSED,
         )
         exceptionFormat = TestExceptionFormat.FULL
         showExceptions = true
