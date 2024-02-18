@@ -5,12 +5,11 @@ import com.coditory.klog.config.LogPrioritizer
 import com.coditory.klog.publish.LogPublisher
 
 internal class LogStream(
-    private val descriptor: LogStreamDescriptor,
     private val filter: LogFilter,
     private val publishers: List<LogPublisher>,
     private val stopOnMatch: Boolean,
     private val prioritizer: LogPrioritizer,
-    private val listener: LogListener,
+    private val listener: LogStreamListener,
 ) {
     suspend fun stopAndFlush() {
         publishers.forEach { it.stopAndFlush() }
@@ -25,7 +24,7 @@ internal class LogStream(
         async: Boolean = true,
     ): Boolean {
         if (filter.matches(event.level, event.logger)) {
-            listener.onStreamStarted(descriptor, event)
+            listener.onStreamStarted(event)
             val eventWithPriority = setupPriority(event)
             for (publisher in publishers) {
                 if (async) {
@@ -34,7 +33,7 @@ internal class LogStream(
                     publisher.publishBlocking(eventWithPriority)
                 }
             }
-            listener.onStreamEnded(descriptor, event)
+            listener.onStreamEnded(event)
             return stopOnMatch
         }
         return false
@@ -42,12 +41,12 @@ internal class LogStream(
 
     suspend fun emitSuspending(event: LogEvent): Boolean {
         if (filter.matches(event.level, event.logger)) {
-            listener.onStreamStarted(descriptor, event)
+            listener.onStreamStarted(event)
             val eventWithPriority = setupPriority(event)
             for (publisher in publishers) {
                 publisher.publishSuspending(eventWithPriority)
             }
-            listener.onStreamEnded(descriptor, event)
+            listener.onStreamEnded(event)
             return stopOnMatch
         }
         return false

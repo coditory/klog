@@ -79,31 +79,43 @@ internal class EmittingKlogLogger(
         event: LogEvent,
         async: Boolean,
     ) {
+        var logged = false
         listener.onLogStarted(event)
         for (level in Level.higherLevelsOrEqual(event.level)) {
             for (stream in streams.getOrDefault(level, emptyList())) {
                 val emitted = stream.emit(event, async)
+                logged = logged || emitted
                 if (emitted && stream.stopOnMatch()) {
                     listener.onLogEnded(event)
                     return
                 }
             }
         }
-        listener.onLogEnded(event)
+        if (logged) {
+            listener.onLogEnded(event)
+        } else {
+            listener.onLogSkipped(event)
+        }
     }
 
     private suspend fun emitEventSuspending(event: LogEvent) {
+        var logged = false
         listener.onLogStarted(event)
         for (level in Level.higherLevelsOrEqual(event.level)) {
             for (stream in streams.getOrDefault(level, emptyList())) {
                 val emitted = stream.emitSuspending(event)
+                logged = logged || emitted
                 if (emitted && stream.stopOnMatch()) {
                     listener.onLogEnded(event)
                     return
                 }
             }
         }
-        listener.onLogEnded(event)
+        if (logged) {
+            listener.onLogEnded(event)
+        } else {
+            listener.onLogSkipped(event)
+        }
     }
 
     private fun createEvent(

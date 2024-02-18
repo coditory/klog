@@ -50,13 +50,13 @@ class KlogBatchingPublisherSpec : FunSpec({
         publisher.getLogs().size shouldBe 0
         delay(publishDelay)
         publisher.getLogs().size shouldBe 1
-        listener.received() shouldBe listOf(
-            "LogStart: Hello",
-            "StreamStart: Hello",
-            "Received: Hello",
-            "StreamEnd: Hello",
-            "LogEnd: Hello",
-            "Published: [Hello]",
+        listener.receivedSimplified() shouldBe listOf(
+            "LogStarted: Hello",
+            "StreamStarted: Hello",
+            "StreamEnded: Hello",
+            "LogEnded: Hello",
+            "PublishStarted: [Hello]",
+            "PublishEnded: [Hello]",
         )
     }
 

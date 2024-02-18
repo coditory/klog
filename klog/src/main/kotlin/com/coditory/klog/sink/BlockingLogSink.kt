@@ -1,14 +1,14 @@
-package com.coditory.klog.publish
+package com.coditory.klog.sink
 
 import com.coditory.klog.LogEvent
-import com.coditory.klog.LogListener
-import com.coditory.klog.LogPublisherDescriptor
+import com.coditory.klog.LogStreamListener
 import com.coditory.klog.config.KlogErrLogger
+import com.coditory.klog.publish.BlockingPublisher
+import com.coditory.klog.publish.LogPublisher
 
 internal class BlockingLogSink(
     private val publisher: BlockingPublisher,
-    private val descriptor: LogPublisherDescriptor,
-    private val listener: LogListener,
+    private val listener: LogStreamListener,
     private val klogErrLogger: KlogErrLogger,
 ) : LogPublisher {
     override suspend fun flush() {
@@ -20,24 +20,20 @@ internal class BlockingLogSink(
     }
 
     override fun publishBlocking(event: LogEvent) {
-        listener.onPublishStarted(descriptor, event)
         try {
             publisher.publishBlocking(event)
-            listener.onPublishEnded(descriptor, event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.onPublishDropped(descriptor, event, e)
+            listener.onStreamDropped(event, e)
         }
     }
 
     override suspend fun publishSuspending(event: LogEvent) {
-        listener.onPublishStarted(descriptor, event)
         try {
             publisher.publishSuspending(event)
-            listener.onPublishEnded(descriptor, event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.onPublishDropped(descriptor, event, e)
+            listener.onStreamDropped(event, e)
         }
     }
 

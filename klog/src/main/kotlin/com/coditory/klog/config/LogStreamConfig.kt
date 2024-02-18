@@ -1,6 +1,7 @@
 package com.coditory.klog.config
 
 import com.coditory.klog.Level
+import com.coditory.klog.LogStreamListener
 import com.coditory.klog.publish.AsyncLogPublisher
 import com.coditory.klog.publish.BlockingPublisher
 
@@ -9,6 +10,7 @@ data class LogStreamConfig(
     val publishers: List<LogPublisherConfig> = mutableListOf(),
     val stopOnMatch: Boolean = true,
     val prioritizer: LogPrioritizer = LogPrioritizer.prioritizeByMinLevel(Level.FATAL),
+    val listener: LogStreamListener = LogStreamListener.NOOP,
 ) {
     companion object {
         fun builder(): LogStreamConfigBuilder {
@@ -23,6 +25,12 @@ class LogStreamConfigBuilder {
     private var stopOnMatch: Boolean = true
     private var prioritizer: LogPrioritizer = LogPrioritizer.prioritizeByMinLevel(Level.FATAL)
     private var publishers: MutableList<LogPublisherConfig> = mutableListOf()
+    private var listener: LogStreamListener = LogStreamListener.NOOP
+
+    fun listener(listener: LogStreamListener): LogStreamConfigBuilder {
+        this.listener = listener
+        return this
+    }
 
     fun filter(filter: LogFilter): LogStreamConfigBuilder {
         this.filter = filter
@@ -62,8 +70,13 @@ class LogStreamConfigBuilder {
         return this
     }
 
-    fun blockingPublisher(blockingPublisher: BlockingPublisher): LogStreamConfigBuilder {
-        this.publishers.add(BlockingLogPublisherConfig(blockingPublisher))
+    fun blockingPublisher(
+        publisher: BlockingPublisher,
+        configure: BlockingLogPublisherConfigBuilder.() -> Unit = {},
+    ): LogStreamConfigBuilder {
+        val builder = BlockingLogPublisherConfigBuilder(publisher)
+        configure(builder)
+        this.publishers.add(builder.build())
         return this
     }
 
@@ -73,6 +86,7 @@ class LogStreamConfigBuilder {
             publishers = publishers,
             stopOnMatch = stopOnMatch,
             prioritizer = prioritizer,
+            listener = listener,
         )
     }
 }

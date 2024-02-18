@@ -6,12 +6,13 @@ import com.coditory.klog.config.KlogConfig
 import com.coditory.klog.config.KlogErrLogger
 import com.coditory.klog.config.LogPublisherConfig
 import com.coditory.klog.config.LogStreamConfig
-import com.coditory.klog.publish.BatchingLogPublisher
-import com.coditory.klog.publish.BlockingLogSink
-import com.coditory.klog.publish.BufferedLogSink
+import com.coditory.klog.publish.InstrumentedAsyncLogPublisher
+import com.coditory.klog.publish.InstrumentedBlockingPublisher
 import com.coditory.klog.publish.LogPublisher
-import com.coditory.klog.publish.LogPublisherListener
-import com.coditory.klog.publish.SerialLogPublisher
+import com.coditory.klog.sink.BatchingLogSink
+import com.coditory.klog.sink.BlockingLogSink
+import com.coditory.klog.sink.BufferedLogSink
+import com.coditory.klog.sink.SerialLogSink
 import java.time.Clock
 
 internal data class KlogContext(
@@ -24,8 +25,8 @@ internal data class KlogContext(
     companion object {
         fun build(config: KlogConfig): KlogContext {
             return KlogContext(
-                streams = config.streams.mapIndexed { idx, stream ->
-                    buildStream(idx, stream, config)
+                streams = config.streams.map { stream ->
+                    buildStream(stream, config)
                 },
                 clock = config.clock,
                 listener = config.listener,
@@ -35,80 +36,86 @@ internal data class KlogContext(
         }
 
         private fun buildStream(
-            streamIdx: Int,
             config: LogStreamConfig,
             klogConfig: KlogConfig,
         ): LogStream {
-            val streamDescriptor = LogStreamDescriptor(streamIdx, config.filter)
             val publishers =
-                config.publishers.mapIndexed { idx, publisher ->
-                    val descriptor = LogPublisherDescriptor(
-                        stream = streamDescriptor,
-                        publisherIdx = idx,
-                        publisherType = publisher.javaClass,
-                    )
-                    buildPublisher(descriptor, publisher, klogConfig)
+                config.publishers.map { publisher ->
+                    buildPublisher(publisher, config, klogConfig)
                 }
+
             return LogStream(
-                descriptor = streamDescriptor,
                 filter = config.filter,
                 publishers = publishers,
                 stopOnMatch = config.stopOnMatch,
                 prioritizer = config.prioritizer,
-                listener = klogConfig.listener,
+                listener = CompositeLogStreamListener.create(config.listener, klogConfig.listener),
             )
         }
 
         private fun buildPublisher(
-            descriptor: LogPublisherDescriptor,
             config: LogPublisherConfig,
+            streamConfig: LogStreamConfig,
             klogConfig: KlogConfig,
         ): LogPublisher {
             return when (config) {
-                is BlockingLogPublisherConfig -> buildBlockingLogPublisher(descriptor, config, klogConfig)
-                is AsyncLogPublisherConfig -> buildAsyncLogPublisher(descriptor, config, klogConfig)
+                is BlockingLogPublisherConfig -> buildBlockingLogPublisher(config, streamConfig, klogConfig)
+                is AsyncLogPublisherConfig -> buildAsyncLogPublisher(config, streamConfig, klogConfig)
             }
         }
 
         private fun buildBlockingLogPublisher(
-            descriptor: LogPublisherDescriptor,
             config: BlockingLogPublisherConfig,
+            streamConfig: LogStreamConfig,
             klogConfig: KlogConfig,
         ): LogPublisher {
-            return BlockingLogSink(
+            val publisher = InstrumentedBlockingPublisher(
+                listener = CompositeLogPublisherListener.create(
+                    config.listener,
+                    streamConfig.listener,
+                    klogConfig.listener,
+                ),
                 publisher = config.publisher,
-                descriptor = descriptor,
-                listener = klogConfig.listener,
+                klogErrLogger = klogConfig.klogErrLogger,
+            )
+            return BlockingLogSink(
+                publisher = publisher,
+                listener = CompositeLogStreamListener.create(streamConfig.listener, klogConfig.listener),
                 klogErrLogger = klogConfig.klogErrLogger,
             )
         }
 
         private fun buildAsyncLogPublisher(
-            descriptor: LogPublisherDescriptor,
             config: AsyncLogPublisherConfig,
+            streamConfig: LogStreamConfig,
             klogConfig: KlogConfig,
         ): LogPublisher {
+            val publisher = InstrumentedAsyncLogPublisher(
+                listener = CompositeLogPublisherListener.create(
+                    config.listener,
+                    streamConfig.listener,
+                    klogConfig.listener,
+                ),
+                publisher = config.publisher,
+                klogErrLogger = klogConfig.klogErrLogger,
+            )
             val serialAsyncLogPublisher =
                 if (!config.serialize) {
-                    config.publisher
+                    publisher
                 } else {
-                    SerialLogPublisher(
-                        publisher = config.publisher,
-                        listener = LogPublisherListener.terminal(descriptor, klogConfig.listener),
+                    SerialLogSink(
+                        publisher = publisher,
+                        listener = CompositeLogStreamListener.create(streamConfig.listener, klogConfig.listener),
                         klogErrLogger = klogConfig.klogErrLogger,
                     )
                 }
             val batchingAsyncPublisher =
                 if (config.batchSize > 0) {
-                    BatchingLogPublisher(
+                    BatchingLogSink(
                         publisher = serialAsyncLogPublisher,
                         batchSize = config.batchSize,
                         maxBatchStaleness = config.maxBatchStaleness,
-                        listener = if (config.serialize) {
-                            LogPublisherListener.middle(descriptor, klogConfig.listener)
-                        } else {
-                            LogPublisherListener.terminal(descriptor, klogConfig.listener)
-                        },
+                        listener = CompositeLogStreamListener.create(streamConfig.listener, klogConfig.listener),
                         klogErrLogger = klogConfig.klogErrLogger,
                     )
                 } else {
@@ -118,7 +125,7 @@ internal data class KlogContext(
                 publisher = batchingAsyncPublisher,
                 standardLogBufferCapacity = config.standardLogBufferCapacity,
                 prioritizedLogBufferCapacity = config.prioritizedLogBufferCapacity,
-                listener = LogPublisherListener.entry(descriptor, klogConfig.listener),
+                listener = CompositeLogStreamListener.create(streamConfig.listener, klogConfig.listener),
                 klogErrLogger = klogConfig.klogErrLogger,
             )
         }

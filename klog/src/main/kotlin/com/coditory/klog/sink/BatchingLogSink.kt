@@ -1,7 +1,9 @@
-package com.coditory.klog.publish
+package com.coditory.klog.sink
 
 import com.coditory.klog.LogEvent
+import com.coditory.klog.LogStreamListener
 import com.coditory.klog.config.KlogErrLogger
+import com.coditory.klog.publish.AsyncLogPublisher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -15,12 +17,12 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-internal class BatchingLogPublisher(
+internal class BatchingLogSink(
     private val publisher: AsyncLogPublisher,
     private val batchSize: Int = Defaults.batchSize,
     private val maxBatchStaleness: Duration = Defaults.maxBatchStaleness,
     private val klogErrLogger: KlogErrLogger = KlogErrLogger.STDERR,
-    private val listener: LogPublisherListener = LogPublisherListener.NOOP,
+    private val listener: LogStreamListener = LogStreamListener.NOOP,
 ) : AsyncLogPublisher {
     private val stopMutex = Mutex()
     private var stopped = false
@@ -29,7 +31,7 @@ internal class BatchingLogPublisher(
 
     @OptIn(DelicateCoroutinesApi::class)
     private val tickerJob =
-        GlobalScope.launch(CoroutineName(BatchingLogPublisher::class.java.simpleName)) {
+        GlobalScope.launch(CoroutineName(BatchingLogSink::class.java.simpleName)) {
             while (isActive) {
                 delay(maxBatchStaleness)
                 emit()
@@ -41,7 +43,7 @@ internal class BatchingLogPublisher(
             batchMutex.withLock {
                 if (batch.isNotEmpty()) {
                     val current = batch
-                    this@BatchingLogPublisher.batch = mutableListOf()
+                    this@BatchingLogSink.batch = mutableListOf()
                     current
                 } else {
                     listOf()
@@ -50,16 +52,14 @@ internal class BatchingLogPublisher(
         if (current.isNotEmpty()) {
             try {
                 publisher.publishBatchAsync(current)
-                listener.published(current)
             } catch (e: Throwable) {
                 klogErrLogger.logDropped(e)
-                listener.dropped(current, e)
+                listener.onStreamDropped(current, e)
             }
         }
     }
 
     override suspend fun publishAsync(event: LogEvent) {
-        listener.received(event)
         val current =
             batchMutex.withLock {
                 if (stopped) {
@@ -68,7 +68,7 @@ internal class BatchingLogPublisher(
                 batch.addLast(event)
                 if (batch.size >= batchSize) {
                     val current = batch
-                    this@BatchingLogPublisher.batch = mutableListOf()
+                    this@BatchingLogSink.batch = mutableListOf()
                     current
                 } else {
                     listOf()
@@ -77,10 +77,9 @@ internal class BatchingLogPublisher(
         if (current.isNotEmpty()) {
             try {
                 publisher.publishBatchAsync(current)
-                listener.published(current)
             } catch (e: Throwable) {
                 klogErrLogger.logDropped(e)
-                listener.dropped(current, e)
+                listener.onStreamDropped(current, e)
             }
         }
     }
@@ -90,26 +89,22 @@ internal class BatchingLogPublisher(
     }
 
     override fun publishBlocking(event: LogEvent) {
-        listener.received(event)
         try {
             runBlocking {
                 publisher.publishBlocking(event)
             }
-            listener.published(event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.dropped(event, e)
+            listener.onStreamDropped(event, e)
         }
     }
 
     override suspend fun publishSuspending(event: LogEvent) {
-        listener.received(event)
         try {
             publisher.publishSuspending(event)
-            listener.published(event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.dropped(event, e)
+            listener.onStreamDropped(event, e)
         }
     }
 

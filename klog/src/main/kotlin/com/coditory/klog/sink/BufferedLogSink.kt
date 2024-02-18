@@ -1,8 +1,11 @@
-package com.coditory.klog.publish
+package com.coditory.klog.sink
 
 import com.coditory.klog.LogEvent
 import com.coditory.klog.LogPriority
+import com.coditory.klog.LogStreamListener
 import com.coditory.klog.config.KlogErrLogger
+import com.coditory.klog.publish.AsyncLogPublisher
+import com.coditory.klog.publish.LogPublisher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -20,7 +23,7 @@ internal class BufferedLogSink(
     private val publisher: AsyncLogPublisher,
     private val standardLogBufferCapacity: Int = Defaults.standardLogBufferCapacity,
     private val prioritizedLogBufferCapacity: Int = Defaults.prioritizedLogBufferCapacity,
-    private val listener: LogPublisherListener = LogPublisherListener.NOOP,
+    private val listener: LogStreamListener = LogStreamListener.NOOP,
     private val klogErrLogger: KlogErrLogger = KlogErrLogger.STDERR,
 ) : LogPublisher {
     private val stdLogsChannel = Channel<LogEvent>(standardLogBufferCapacity)
@@ -42,15 +45,13 @@ internal class BufferedLogSink(
     private suspend fun emit(event: LogEvent) {
         try {
             publisher.publishAsync(event)
-            listener.published(event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.dropped(event, e)
+            listener.onStreamDropped(event, e)
         }
     }
 
     override fun publish(event: LogEvent) {
-        listener.received(event)
         val result =
             if (event.priority == LogPriority.PRIORITIZED) {
                 stdLogsChannel.trySend(event)
@@ -58,29 +59,25 @@ internal class BufferedLogSink(
                 prioritizedLogsChannel.trySend(event)
             }
         if (!result.isSuccess) {
-            listener.dropped(event, result.exceptionOrNull())
+            listener.onStreamDropped(event, result.exceptionOrNull())
         }
     }
 
     override fun publishBlocking(event: LogEvent) {
-        listener.received(event)
         try {
             publisher.publishBlocking(event)
-            listener.published(event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.dropped(event, e)
+            listener.onStreamDropped(event, e)
         }
     }
 
     override suspend fun publishSuspending(event: LogEvent) {
-        listener.received(event)
         try {
             publisher.publishSuspending(event)
-            listener.published(event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.dropped(event, e)
+            listener.onStreamDropped(event, e)
         }
     }
 
