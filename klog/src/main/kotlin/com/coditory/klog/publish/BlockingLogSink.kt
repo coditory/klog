@@ -20,24 +20,24 @@ internal class BlockingLogSink(
     }
 
     override fun publishBlocking(event: LogEvent) {
-        listener.onReceived(descriptor, event)
+        listener.onPublishStarted(descriptor, event)
         try {
             publisher.publishBlocking(event)
-            listener.onPublished(descriptor, event)
+            listener.onPublishEnded(descriptor, event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.onDropped(descriptor, event, e)
+            listener.onPublishDropped(descriptor, event, e)
         }
     }
 
     override suspend fun publishSuspending(event: LogEvent) {
-        listener.onReceived(descriptor, event)
+        listener.onPublishStarted(descriptor, event)
         try {
             publisher.publishSuspending(event)
-            listener.onPublished(descriptor, event)
+            listener.onPublishEnded(descriptor, event)
         } catch (e: Throwable) {
             klogErrLogger.logDropped(e)
-            listener.onDropped(descriptor, event, e)
+            listener.onPublishDropped(descriptor, event, e)
         }
     }
 

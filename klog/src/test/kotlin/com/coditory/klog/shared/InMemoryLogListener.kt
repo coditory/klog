@@ -19,17 +19,17 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onLogStart(event: LogEvent) {
+    override fun onLogStarted(event: LogEvent) {
         received.add("LogStart: ${event.message}")
     }
 
     @Synchronized
-    override fun onLogEnd(event: LogEvent) {
+    override fun onLogEnded(event: LogEvent) {
         received.add("LogEnd: ${event.message}")
     }
 
     @Synchronized
-    override fun onStreamStart(
+    override fun onStreamStarted(
         stream: LogStreamDescriptor,
         event: LogEvent,
     ) {
@@ -37,7 +37,7 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onStreamEnd(
+    override fun onStreamEnded(
         stream: LogStreamDescriptor,
         event: LogEvent,
     ) {
@@ -45,7 +45,7 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onReceived(
+    override fun onPublishStarted(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
     ) {
@@ -53,7 +53,7 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onReceived(
+    override fun onPublishStarted(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
     ) {
@@ -61,7 +61,7 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onDropped(
+    override fun onPublishDropped(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
         e: Throwable?,
@@ -70,7 +70,7 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onDropped(
+    override fun onPublishDropped(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
         e: Throwable?,
@@ -79,7 +79,7 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onPublished(
+    override fun onPublishEnded(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
     ) {
@@ -87,7 +87,7 @@ class InMemoryLogListener : LogListener {
     }
 
     @Synchronized
-    override fun onPublished(
+    override fun onPublishEnded(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
     ) {

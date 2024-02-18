@@ -12,12 +12,14 @@ internal interface LogPublisherListener {
     fun dropped(
         event: LogEvent,
         e: Throwable? = null,
-    ) {}
+    ) {
+    }
 
     fun dropped(
         events: List<LogEvent>,
         e: Throwable? = null,
-    ) {}
+    ) {
+    }
 
     fun published(event: LogEvent) {}
 
@@ -32,25 +34,25 @@ internal interface LogPublisherListener {
         ): LogPublisherListener {
             return object : LogPublisherListener {
                 override fun published(event: LogEvent) {
-                    listener.onPublished(publisher, event)
+                    listener.onPublishEnded(publisher, event)
                 }
 
                 override fun published(events: List<LogEvent>) {
-                    listener.onPublished(publisher, events)
+                    listener.onPublishEnded(publisher, events)
                 }
 
                 override fun dropped(
                     event: LogEvent,
                     e: Throwable?,
                 ) {
-                    listener.onDropped(publisher, event, e)
+                    listener.onPublishDropped(publisher, event, e)
                 }
 
                 override fun dropped(
                     events: List<LogEvent>,
                     e: Throwable?,
                 ) {
-                    listener.onDropped(publisher, events, e)
+                    listener.onPublishDropped(publisher, events, e)
                 }
             }
         }
@@ -64,14 +66,14 @@ internal interface LogPublisherListener {
                     event: LogEvent,
                     e: Throwable?,
                 ) {
-                    listener.onDropped(publisher, event, e)
+                    listener.onPublishDropped(publisher, event, e)
                 }
 
                 override fun dropped(
                     events: List<LogEvent>,
                     e: Throwable?,
                 ) {
-                    listener.onDropped(publisher, events, e)
+                    listener.onPublishDropped(publisher, events, e)
                 }
             }
         }
@@ -82,25 +84,25 @@ internal interface LogPublisherListener {
         ): LogPublisherListener {
             return object : LogPublisherListener {
                 override fun received(event: LogEvent) {
-                    listener.onReceived(publisher, event)
+                    listener.onPublishStarted(publisher, event)
                 }
 
                 override fun received(events: List<LogEvent>) {
-                    listener.onReceived(publisher, events)
+                    listener.onPublishStarted(publisher, events)
                 }
 
                 override fun dropped(
                     event: LogEvent,
                     e: Throwable?,
                 ) {
-                    listener.onDropped(publisher, event, e)
+                    listener.onPublishDropped(publisher, event, e)
                 }
 
                 override fun dropped(
                     events: List<LogEvent>,
                     e: Throwable?,
                 ) {
-                    listener.onDropped(publisher, events, e)
+                    listener.onPublishDropped(publisher, events, e)
                 }
             }
         }

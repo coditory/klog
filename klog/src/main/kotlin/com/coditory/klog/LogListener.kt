@@ -3,55 +3,55 @@ package com.coditory.klog
 import com.coditory.klog.config.LogFilter
 
 interface LogListener {
-    fun onLogStart(event: LogEvent) {}
+    fun onLogStarted(event: LogEvent) {}
 
-    fun onLogEnd(event: LogEvent) {}
+    fun onLogEnded(event: LogEvent) {}
 
-    fun onStreamStart(
+    fun onStreamStarted(
         stream: LogStreamDescriptor,
         event: LogEvent,
     ) {
     }
 
-    fun onStreamEnd(
+    fun onStreamEnded(
         stream: LogStreamDescriptor,
         event: LogEvent,
     ) {
     }
 
-    fun onReceived(
+    fun onPublishStarted(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
     ) {
     }
 
-    fun onReceived(
+    fun onPublishStarted(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
     ) {
     }
 
-    fun onDropped(
+    fun onPublishDropped(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
         e: Throwable? = null,
     ) {
     }
 
-    fun onDropped(
+    fun onPublishDropped(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
         e: Throwable? = null,
     ) {
     }
 
-    fun onPublished(
+    fun onPublishEnded(
         publisher: LogPublisherDescriptor,
         event: LogEvent,
     ) {
     }
 
-    fun onPublished(
+    fun onPublishEnded(
         publisher: LogPublisherDescriptor,
         events: List<LogEvent>,
     ) {

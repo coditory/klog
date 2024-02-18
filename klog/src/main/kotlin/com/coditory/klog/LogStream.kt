@@ -25,7 +25,7 @@ internal class LogStream(
         async: Boolean = true,
     ): Boolean {
         if (filter.matches(event.level, event.logger)) {
-            listener.onStreamStart(descriptor, event)
+            listener.onStreamStarted(descriptor, event)
             val eventWithPriority = setupPriority(event)
             for (publisher in publishers) {
                 if (async) {
@@ -34,7 +34,7 @@ internal class LogStream(
                     publisher.publishBlocking(eventWithPriority)
                 }
             }
-            listener.onStreamEnd(descriptor, event)
+            listener.onStreamEnded(descriptor, event)
             return stopOnMatch
         }
         return false
@@ -42,12 +42,12 @@ internal class LogStream(
 
     suspend fun emitSuspending(event: LogEvent): Boolean {
         if (filter.matches(event.level, event.logger)) {
-            listener.onStreamStart(descriptor, event)
+            listener.onStreamStarted(descriptor, event)
             val eventWithPriority = setupPriority(event)
             for (publisher in publishers) {
                 publisher.publishSuspending(eventWithPriority)
             }
-            listener.onStreamEnd(descriptor, event)
+            listener.onStreamEnded(descriptor, event)
             return stopOnMatch
         }
         return false

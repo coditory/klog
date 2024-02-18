@@ -1,6 +1,7 @@
 plugins {
     id("build.kotlin") apply false
     id("build.version")
+    id("build.git")
     alias(libs.plugins.kover)
     alias(libs.plugins.dokka)
     alias(libs.plugins.nexusPublish)
