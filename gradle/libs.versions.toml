@@ -2,7 +2,7 @@
 # Build tools
 java = "21"
 kotlin = "1.9.22"
-coroutines = "1.7.3"
+coroutines = "1.8.0"
 ktlint = "1.0.1"
 jacoco = "0.8.11"
 # Dependencies
