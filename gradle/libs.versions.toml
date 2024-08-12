@@ -27,7 +27,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.16" }
 # Test dependencies
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
-awaitility = { module = "org.awaitility:awaitility", version = "4.2.1" }
+awaitility = { module = "org.awaitility:awaitility", version = "4.2.2" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
