@@ -141,7 +141,7 @@ internal class EmittingKlogLogger(
             context: KlogContext,
             name: String,
         ): EmittingKlogLogger {
-            val streams = mutableMapOf<Level, List<LogStream>>()
+            val streams = mutableMapOf<Level, MutableList<LogStream>>()
             var minLogLevel: Level? = null
             for (stream in context.streams) {
                 for (level in Level.levels()) {

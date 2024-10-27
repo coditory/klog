@@ -21,7 +21,7 @@ Before writing a commit message read [this article](https://chris.beams.io/posts
 
 Before pushing any changes make sure project builds without errors with:
 
-```
+```sh
 ./gradlew build
 ```
 
@@ -31,6 +31,13 @@ This project uses [Kotest](https://kotest.io/) for testing.
 
 - Make sure tests clearly document new features
 - Any new feature must be unit tested
+
+Test coverage report is generated with:
+
+```sh
+./gradle build coverage
+# See: build/reports/kover/html/index.html
+```
 
 ## Validate changes locally
 

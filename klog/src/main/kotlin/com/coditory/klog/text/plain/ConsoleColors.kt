@@ -4,8 +4,9 @@ internal object ConsoleColors {
     // Simplified detection by design to skip adding dependencies
     // XPC_SERVICE_NAME - used to force enable colors in intellij on macOS
     internal val ANSI_CONSOLE: Boolean =
-        (System.console() != null && System.getenv("TERM") != null) || System.getenv("XPC_SERVICE_NAME")
-            ?.startsWith("application.com.jetbrains.intellij") == true
+        (System.console() != null && System.getenv("TERM") != null) ||
+            System.getenv("XPC_SERVICE_NAME")
+                ?.startsWith("application.com.jetbrains.intellij") == true
 
     // Reset
     const val RESET: String = "\u001b[0m"

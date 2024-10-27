@@ -26,7 +26,7 @@ data class KlogConfig(
 
 @ScopedKlogConfig
 class KlogConfigBuilder {
-    private val streams: List<LogStreamConfig> = mutableListOf()
+    private val streams: MutableList<LogStreamConfig> = mutableListOf()
     private var clock: Clock = Clock.systemDefaultZone()
     private var zoneId: ZoneId = clock.zone
     private var listener: LogListener = LogListener.NOOP

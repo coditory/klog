@@ -27,7 +27,7 @@ internal class BatchingLogSink(
     private val stopMutex = Mutex()
     private var stopped = false
     private val batchMutex = Mutex()
-    private var batch: List<LogEvent> = mutableListOf()
+    private var batch: MutableList<LogEvent> = mutableListOf()
 
     @OptIn(DelicateCoroutinesApi::class)
     private val tickerJob =

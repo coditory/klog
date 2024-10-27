@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
-
 plugins {
     `java-library`
     `maven-publish`
@@ -8,7 +6,7 @@ plugins {
 
 publishing {
     publications.create<MavenPublication>("jvm") {
-        artifactId = project.archivesName.get()
+        artifactId = project.name
         from(components["java"])
         versionMapping {
             usage("java-api") {
@@ -19,7 +17,7 @@ publishing {
             }
         }
         pom {
-            name.set(project.archivesName.get())
+            name.set(project.name)
             description.set(project.description ?: rootProject.description ?: "Kotlin logging library")
             url.set("https://github.com/coditory/klog")
             organization {

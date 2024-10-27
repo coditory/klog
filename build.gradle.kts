@@ -1,6 +1,5 @@
 plugins {
     id("build.version")
-    id("build.git")
     id("build.coverage")
     id("build.publish-root")
 }

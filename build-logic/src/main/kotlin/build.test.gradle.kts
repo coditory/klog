@@ -1,38 +1,32 @@
-@file:Suppress("UnstableApiUsage", "HasPlatformType")
-
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
+@file:Suppress("UnstableApiUsage")
 
 plugins {
     kotlin("jvm")
+    `jvm-test-suite`
     id("build.coverage")
-    id("com.adarshr.test-logger")
 }
 
 val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)
 
 testing {
     suites {
+        withType<JvmTestSuite> {
+            useJUnitJupiter()
+            targets.configureEach {
+                testTask {
+                    testLogging {
+                        events("passed", "failed", "skipped")
+                        setExceptionFormat("full")
+                    }
+                }
+            }
+        }
         val test by getting(JvmTestSuite::class)
-
         val integrationTest by registering(JvmTestSuite::class) {
             testType.set(TestSuiteType.INTEGRATION_TEST)
-
-            val mainSourceSet = project.sourceSets.main.get()
-            val testSourceSet = project.sourceSets.test.get()
-
-            sources {
-                compileClasspath += testSourceSet.output +
-                    mainSourceSet.output + testSourceSet.compileClasspath
-                runtimeClasspath += testSourceSet.output +
-                    mainSourceSet.output + testSourceSet.runtimeClasspath
-            }
-
-            targets {
-                all {
-                    testTask.configure {
-                        shouldRunAfter(test)
-                    }
+            targets.all {
+                testTask.configure {
+                    shouldRunAfter(test)
                 }
             }
         }
@@ -52,19 +46,6 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-    testLogging {
-        events = setOf(
-            TestLogEvent.FAILED,
-            TestLogEvent.STANDARD_ERROR,
-            TestLogEvent.STANDARD_OUT,
-            TestLogEvent.SKIPPED,
-            TestLogEvent.PASSED,
-        )
-        exceptionFormat = TestExceptionFormat.FULL
-        showExceptions = true
-        showCauses = true
-        showStackTraces = true
-    }
     reports {
         junitXml.required.set(true)
         html.required.set(true)

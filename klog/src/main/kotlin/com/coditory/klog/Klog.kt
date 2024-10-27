@@ -49,10 +49,9 @@ class Klog(config: KlogConfig) {
 
     fun logger(name: String): KlogLogger = loggerFor(name)
 
-    fun logger(ownerClass: KClass<*>): KlogLogger =
-        loggerFor(
-            classNameOf(ownerClass) ?: throw IllegalArgumentException("Could not extract logger name from class name"),
-        )
+    fun logger(ownerClass: KClass<*>): KlogLogger = loggerFor(
+        classNameOf(ownerClass) ?: throw IllegalArgumentException("Could not extract logger name from class name"),
+    )
 
     inline fun <reified T> logger(): KlogLogger = logger(T::class)
 

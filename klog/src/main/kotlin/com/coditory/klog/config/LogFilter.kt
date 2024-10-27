@@ -14,29 +14,25 @@ data class LogFilter(
     }
 
     companion object {
-        fun matchAll() =
-            LogFilter(
-                levelRange = LevelRange.allLevels(),
-                nameMatcher = LoggerNameMatcher.matchAll(),
-            )
+        fun matchAll() = LogFilter(
+            levelRange = LevelRange.allLevels(),
+            nameMatcher = LoggerNameMatcher.matchAll(),
+        )
 
-        fun matchNone() =
-            LogFilter(
-                levelRange = LevelRange.allLevels(),
-                nameMatcher = LoggerNameMatcher.matchAll(),
-            )
+        fun matchNone() = LogFilter(
+            levelRange = LevelRange.allLevels(),
+            nameMatcher = LoggerNameMatcher.matchAll(),
+        )
 
-        fun filterByMinLevel(level: Level) =
-            LogFilter(
-                levelRange = LevelRange.fromMinLevel(level),
-                nameMatcher = LoggerNameMatcher.matchAll(),
-            )
+        fun filterByMinLevel(level: Level) = LogFilter(
+            levelRange = LevelRange.fromMinLevel(level),
+            nameMatcher = LoggerNameMatcher.matchAll(),
+        )
 
-        fun filterByBaseLoggerName(name: String): LogFilter =
-            LogFilter(
-                levelRange = LevelRange.allLevels(),
-                nameMatcher = LoggerNameMatcher.fromLoggerBase(name),
-            )
+        fun filterByBaseLoggerName(name: String): LogFilter = LogFilter(
+            levelRange = LevelRange.allLevels(),
+            nameMatcher = LoggerNameMatcher.fromLoggerBase(name),
+        )
 
         fun filterByNameAndLevel(
             range: LevelRange = LevelRange.allLevels(),

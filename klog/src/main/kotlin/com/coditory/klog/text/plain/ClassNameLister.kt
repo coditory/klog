@@ -37,7 +37,7 @@ internal object ClassNameLister {
         directory: File,
         packageName: String,
         max: Int,
-        result: List<String>,
+        result: MutableList<String>,
     ) {
         if (!directory.exists() || result.size == max) {
             return

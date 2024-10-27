@@ -6,7 +6,7 @@ val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     }
     withJavadocJar()
     withSourcesJar()

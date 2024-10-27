@@ -172,13 +172,12 @@ class Slf4jLoggerWrapper(
         }
     }
 
-    private fun klogLevel(slf4jLevel: org.slf4j.event.Level?): Level =
-        when (slf4jLevel) {
-            org.slf4j.event.Level.TRACE -> Level.TRACE
-            org.slf4j.event.Level.DEBUG -> Level.DEBUG
-            org.slf4j.event.Level.INFO -> Level.INFO
-            org.slf4j.event.Level.WARN -> Level.WARN
-            org.slf4j.event.Level.ERROR -> Level.ERROR
-            else -> Level.INFO
-        }
+    private fun klogLevel(slf4jLevel: org.slf4j.event.Level?): Level = when (slf4jLevel) {
+        org.slf4j.event.Level.TRACE -> Level.TRACE
+        org.slf4j.event.Level.DEBUG -> Level.DEBUG
+        org.slf4j.event.Level.INFO -> Level.INFO
+        org.slf4j.event.Level.WARN -> Level.WARN
+        org.slf4j.event.Level.ERROR -> Level.ERROR
+        else -> Level.INFO
+    }
 }
