@@ -28,14 +28,16 @@ updates:
       # merged automatically
       dev-dependencies:
         patterns:
-          - "io.kotest*"
-          - "*-test"
-          - "*assert"
-          - "org.awaitility*"
+          # gradle plugins
           - "*ktlint-gradle"
           - "*dokka-gradle-plugin"
           - "*kover-gradle-plugin"
           - "*publish-plugin"
+          # test dependencies
+          - "io.kotest*"
+          - "org.awaitility*"
+          - "*-test"
+          - "*assert"
       # merged and released automatically
       prod-dependencies:
         update-types:
