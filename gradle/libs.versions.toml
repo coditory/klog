@@ -17,7 +17,7 @@ gradle-nexusPublish = { module = "io.github.gradle-nexus:publish-plugin", versio
 # Dependencies
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.16" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = "2.0.17" }
 # Test dependencies
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
