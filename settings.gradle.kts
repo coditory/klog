@@ -3,6 +3,7 @@ rootProject.name = "klog-logger"
 includeBuild("build-logic")
 include("klog")
 include("klog-slf4j")
+include("klog-jpl")
 include("klog-sample")
 
 plugins {

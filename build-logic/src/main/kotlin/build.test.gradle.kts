@@ -23,7 +23,6 @@ testing {
         }
         val test by getting(JvmTestSuite::class)
         val integrationTest by registering(JvmTestSuite::class) {
-            testType.set(TestSuiteType.INTEGRATION_TEST)
             targets.all {
                 testTask.configure {
                     shouldRunAfter(test)

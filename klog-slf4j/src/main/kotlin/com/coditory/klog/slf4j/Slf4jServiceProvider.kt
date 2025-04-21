@@ -9,13 +9,13 @@ import org.slf4j.spi.SLF4JServiceProvider
 class Slf4jServiceProvider : SLF4JServiceProvider {
     private lateinit var loggerFactory: ILoggerFactory
     private lateinit var markerFactory: IMarkerFactory
-    private lateinit var mdcAdapter: MDCAdapter
+    private var mdcAdapter: MDCAdapter? = null
 
     override fun getLoggerFactory(): ILoggerFactory = loggerFactory
 
     override fun getMarkerFactory(): IMarkerFactory = markerFactory
 
-    override fun getMDCAdapter(): MDCAdapter = mdcAdapter
+    override fun getMDCAdapter(): MDCAdapter? = mdcAdapter
 
     override fun getRequestedApiVersion(): String = REQUESTED_API_VERSION
 
