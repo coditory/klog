@@ -5,13 +5,13 @@ kotlin = "2.2.20"
 coroutines = "1.10.2"
 ktlint = "1.4.0"
 # Test dependencies
-kotest = "5.9.1"
+kotest = "6.1.1"
 
 [libraries]
 # Build logic
 gradle-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradle-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version = "12.0.2" }
-gradle-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version = "1.9.20" }
+gradle-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version = "2.1.0" }
 gradle-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version = "0.9.2" }
 gradle-nexusPublish = { module = "io.github.gradle-nexus:publish-plugin", version = "1.1.0" }
 # Dependencies
